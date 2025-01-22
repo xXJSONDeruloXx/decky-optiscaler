@@ -43,95 +43,57 @@ class Plugin(PluginBase):
         script = """
 #!/usr/bin/env bash
 
-set -euo pipefail  # Exit on error, undefined variable, or pipe failure
-trap 'echo "An error occurred. Exiting."' ERR
+set -euo pipefail
+trap 'echo "An error occurred. Exiting." && exit 1' ERR
 
 # Define paths
-assets_path="$HOME/homebrew/plugins/Decky-Framegen/assets"
-mod_path="$assets_path"
-nvidiaver=555.52.04
-enablerver=3.02.000.0
-fakenvapiver=v1.2.0
+zip_file="$HOME/homebrew/plugins/Decky-Framegen/assets/fgmod-1.5.1.zip"
+downloads_dir="$HOME/Downloads"
+destination_zip="$downloads_dir/fgmod-1.5.1.zip"
 
-# Ensure the assets directory exists
-if [[ ! -d "$assets_path" ]]; then
-    echo "Error: Assets directory does not exist at $assets_path!"
+# Step 1: Copy the ZIP file to Downloads if it doesn't already exist
+if [[ ! -f "$destination_zip" ]]; then
+    echo "Copying ZIP file to Downloads directory..."
+    cp "$zip_file" "$destination_zip" || { echo "Error: ZIP file not found at $zip_file"; exit 1; }
+else
+    echo "ZIP file already exists in Downloads directory. Skipping copy."
+fi
+
+# Step 2: Navigate to Downloads
+cd "$downloads_dir"
+
+# Step 3: Extract the ZIP file
+echo "Extracting ZIP file..."
+unzip -o "$(basename "$destination_zip")" || { echo "Error: Failed to extract ZIP file."; exit 1; }
+
+# Step 4: Locate the extracted directory dynamically
+echo "Locating extracted directory..."
+extracted_dir=$(find . -maxdepth 1 -type d -name "fgmod*" ! -name "__MACOSX" | head -n 1)
+
+if [[ -d "$extracted_dir" ]]; then
+    cd "$extracted_dir"
+    echo "Navigated to extracted directory: $extracted_dir"
+else
+    echo "Error: Extracted directory not found."
     exit 1
 fi
 
-# Clear existing mod files
-echo "Preparing mod directory..."
-rm -rf "$mod_path"/*
-mkdir -p "$mod_path"
-
-# Copy fgmod scripts from assets
-echo "Copying fgmod scripts..."
-cp "$assets_path/fgmod.sh" "$mod_path/fgmod" || { echo "Error: fgmod.sh not found in assets!"; exit 1; }
-cp "$assets_path/fgmod-uninstaller.sh" "$mod_path/fgmod-uninstaller.sh" || { echo "Error: fgmod-uninstaller.sh not found in assets!"; exit 1; }
-
-# Navigate to mod_path
-cd "$mod_path"
-
-# Download required files
-echo "Downloading required files..."
-curl -OLf "https://github.com/artur-graniszewski/DLSS-Enabler/releases/download/$enablerver/dlss-enabler-setup-$enablerver.exe"
-curl -OLf "https://download.nvidia.com/XFree86/Linux-x86_64/$nvidiaver/NVIDIA-Linux-x86_64-$nvidiaver.run"
-curl -OLf "https://raw.githubusercontent.com/mozilla/fxc2/master/dll/d3dcompiler_47.dll"
-curl -OLf "https://github.com/FakeMichau/innoextract/releases/download/6.3.0/innoextract"
-curl -OLf "https://github.com/FakeMichau/fakenvapi/releases/download/$fakenvapiver/fakenvapi.7z"
-
-# Validate downloads
-echo "Validating downloaded files..."
-required_files=(
-    "dlss-enabler-setup-$enablerver.exe"
-    "NVIDIA-Linux-x86_64-$nvidiaver.run"
-    "d3dcompiler_47.dll"
-    "innoextract"
-    "fakenvapi.7z"
-)
-
-for file in "${required_files[@]}"; do
-    if [[ ! -f $file ]]; then
-        echo "Error: Missing required file: $file"
-        exit 1
-    fi
-done
-
-# Extract and prepare files
-echo "Extracting and preparing files..."
-chmod +x NVIDIA-Linux-x86_64-$nvidiaver.run innoextract
-./NVIDIA-Linux-x86_64-$nvidiaver.run -x
-./innoextract dlss-enabler-setup-$enablerver.exe
-
-mv app/* . || true
-rm -r app || true
-if command -v 7z &>/dev/null; then
-    7z -y x fakenvapi.7z
+# Step 5: Run the prepare.sh script and automatically answer "y"
+echo "Running prepare.sh..."
+if [[ -f "./prepare.sh" ]]; then
+    chmod +x ./prepare.sh
+    echo "y" | ./prepare.sh || { echo "Error: prepare.sh failed."; exit 1; }
+else
+    echo "Error: prepare.sh not found in $extracted_dir"
+    exit 1
 fi
 
-cp -f NVIDIA-Linux-x86_64-$nvidiaver/nvngx.dll _nvngx.dll
-cp -f NVIDIA-Linux-x86_64-$nvidiaver/LICENSE "licenses/LICENSE (NVIDIA driver)"
-chmod +r _nvngx.dll
+# Step 6: Signal success to the front end
+echo "Installation successful!"
+# Log the success explicitly for the frontend
+echo "STATUS: SUCCESS"
 
-# Cleanup unnecessary files
-echo "Cleaning up temporary files..."
-rm -rf innoextract NVIDIA-Linux-x86_64-$nvidiaver dlss-enabler-setup-$enablerver.exe \
-       NVIDIA-Linux-x86_64-$nvidiaver.run fakenvapi.7z
-
-# Update script paths
-sed -i "s|mod_path=\"/usr/share/fgmod\"|mod_path=\"$mod_path\"|g" "$mod_path/fgmod" "$mod_path/fgmod-uninstaller.sh"
-chmod +x "$mod_path/fgmod" "$mod_path/fgmod-uninstaller.sh"
-
-# Handle Flatpak Steam
-if flatpak list | grep -q "com.valvesoftware.Steam"; then
-    echo "Flatpak version of Steam detected. Granting access to $mod_path."
-    flatpak override --user --filesystem="$mod_path" com.valvesoftware.Steam
-    echo "Please restart Steam for changes to take effect."
-fi
-
-echo "All done!"
-echo "For Steam, add this to the launch options: \"$mod_path/fgmod\" %COMMAND%"
-echo "For Heroic, add this as a new wrapper: \"$mod_path/fgmod\""
+exit 0
 """
         try:
             process = subprocess.run(script, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
