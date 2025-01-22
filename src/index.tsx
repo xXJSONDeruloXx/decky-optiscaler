@@ -3,7 +3,9 @@ import {
   PanelSection,
   PanelSectionRow,
   Navigation,
-  staticClasses
+  staticClasses,
+  Dropdown,
+  DropdownOption
 } from "@decky/ui";
 import {
   addEventListener,
@@ -28,8 +30,15 @@ const add = callable<[first: number, second: number], number>("add");
 // It starts a (python) timer which eventually emits the event 'timer_event'
 const startTimer = callable<[], void>("start_timer");
 
+const dropdownOptions: DropdownOption[] = [
+  { label: "1", data: 1 },
+  { label: "2", data: 2 },
+  { label: "3", data: 3 },
+];
+
 function Content() {
   const [result, setResult] = useState<number | undefined>();
+  const [selectedOption, setSelectedOption] = useState<number | undefined>();
 
   const onClick = async () => {
     const result = await add(Math.random(), Math.random());
@@ -53,6 +62,13 @@ function Content() {
         >
           {"Start Python timer"}
         </ButtonItem>
+      </PanelSectionRow>
+      <PanelSectionRow>
+        <Dropdown
+          rgOptions={dropdownOptions}
+          selectedOption={selectedOption}
+          onChange={(option) => setSelectedOption(option.data)}
+        />
       </PanelSectionRow>
 
       {/* <PanelSectionRow>
