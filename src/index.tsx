@@ -1,37 +1,46 @@
-import { useState, useEffect } from "react";
-import { PanelSection, PanelSectionRow, Dropdown, DropdownOption } from "@decky/ui";
+import { useState } from "react";
+import { PanelSection, PanelSectionRow, ButtonItem } from "@decky/ui";
 import { callable, definePlugin } from "@decky/api";
 import { FaShip } from "react-icons/fa";
 
-const fetchInstalledGames = callable<[], string>("get_installed_games");
+const runInstallFGMod = callable<[], { status: string; message?: string; output?: string }>("run_install_fgmod");
 
 function Content() {
-  const [games, setGames] = useState<DropdownOption[]>([]);
-  const [selectedGame, setSelectedGame] = useState<DropdownOption | null>(null);
+  const [installing, setInstalling] = useState(false);
+  const [installResult, setInstallResult] = useState<{ status: string; output?: string; message?: string } | null>(
+    null
+  );
 
-  useEffect(() => {
-    const loadGames = async () => {
-      const result = await fetchInstalledGames();
-      const gameList = JSON.parse(result) as { appid: string; name: string }[];
-      setGames(gameList.map(game => ({ data: game.appid, label: game.name })));
-    };
-
-    loadGames();
-  }, []);
+  const handleInstallClick = async () => {
+    setInstalling(true);
+    const result = await runInstallFGMod();
+    setInstalling(false);
+    setInstallResult(result);
+  };
 
   return (
-    <PanelSection title="Installed Games">
+    <PanelSection title="FG Mod Installer">
       <PanelSectionRow>
-        <Dropdown
-          rgOptions={games}
-          selectedOption={selectedGame?.data || null}
-          onChange={(option) => setSelectedGame(option)}
-          strDefaultLabel="Select a game" // Placeholder equivalent
-        />
+        <ButtonItem layout="below" onClick={handleInstallClick} disabled={installing}>
+          {installing ? "Installing..." : "Install FG Mod"}
+        </ButtonItem>
       </PanelSectionRow>
-      {selectedGame && (
+      {installResult && (
         <PanelSectionRow>
-          <div>You selected: {selectedGame.label}</div>
+          <div>
+            <strong>Status:</strong> {installResult.status === "success" ? "Success" : "Error"} <br />
+            {installResult.output && (
+              <>
+                <strong>Output:</strong>
+                <pre style={{ whiteSpace: "pre-wrap" }}>{installResult.output}</pre>
+              </>
+            )}
+            {installResult.message && (
+              <>
+                <strong>Error:</strong> {installResult.message}
+              </>
+            )}
+          </div>
         </PanelSectionRow>
       )}
     </PanelSection>
@@ -39,8 +48,8 @@ function Content() {
 }
 
 export default definePlugin(() => ({
-  name: "Game Selector Plugin",
-  titleView: <div>Game Selector Plugin</div>,
+  name: "FG Mod Installer",
+  titleView: <div>FG Mod Installer</div>,
   content: <Content />,
   icon: <FaShip />,
   onDismount() {
