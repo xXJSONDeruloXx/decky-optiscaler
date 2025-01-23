@@ -87,16 +87,27 @@ function FGModInstallerSection() {
 
   return (
     <PanelSection title="FG Mod Installer">
-      <PanelSectionRow>
-        <ButtonItem layout="below" onClick={handleInstallClick} disabled={installing}>
-          {installing ? "Installing..." : "Install FG Mod"}
-        </ButtonItem>
-      </PanelSectionRow>
-      <PanelSectionRow>
-        <ButtonItem layout="below" onClick={handleUninstallClick} disabled={uninstalling}>
-          {uninstalling ? "Uninstalling..." : "Uninstall FG Mod"}
-        </ButtonItem>
-      </PanelSectionRow>
+      {pathExists !== null && (
+        <PanelSectionRow>
+          <div style={{ color: pathExists ? "green" : "red" }}>
+            {pathExists ? "Mod Is Installed" : "Mod Not Installed"}
+          </div>
+        </PanelSectionRow>
+      )}
+      {pathExists === false && (
+        <PanelSectionRow>
+          <ButtonItem layout="below" onClick={handleInstallClick} disabled={installing}>
+            {installing ? "Installing..." : "Install FG Mod"}
+          </ButtonItem>
+        </PanelSectionRow>
+      )}
+      {pathExists === true && (
+        <PanelSectionRow>
+          <ButtonItem layout="below" onClick={handleUninstallClick} disabled={uninstalling}>
+            {uninstalling ? "Uninstalling..." : "Uninstall FG Mod"}
+          </ButtonItem>
+        </PanelSectionRow>
+      )}
       {installResult && (
         <PanelSectionRow>
           <div>
@@ -134,13 +145,6 @@ function FGModInstallerSection() {
                 <strong>Error:</strong> {uninstallResult.message}
               </>
             )}
-          </div>
-        </PanelSectionRow>
-      )}
-      {pathExists !== null && (
-        <PanelSectionRow>
-          <div style={{ color: pathExists ? "green" : "red" }}>
-            {pathExists ? "Mod Is Installed" : "Mod Not Installed"}
           </div>
         </PanelSectionRow>
       )}
