@@ -50,6 +50,26 @@ function FGModInstallerSection() {
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
+  useEffect(() => {
+    if (installResult) {
+      const timer = setTimeout(() => {
+        setInstallResult(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+    return () => {}; // Ensure a cleanup function is always returned
+  }, [installResult]);
+
+  useEffect(() => {
+    if (uninstallResult) {
+      const timer = setTimeout(() => {
+        setUninstallResult(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+    return () => {}; // Ensure a cleanup function is always returned
+  }, [uninstallResult]);
+
   const handleInstallClick = async () => {
     setInstalling(true);
     const result = await runInstallFGMod();
@@ -119,7 +139,7 @@ function FGModInstallerSection() {
       {pathExists !== null && (
         <PanelSectionRow>
           <div style={{ color: pathExists ? "green" : "red" }}>
-            {pathExists ? "Ready to Patch" : "Mod Not Installed"}
+            {pathExists ? "Patch Is Installed" : "Patch Not Installed"}
           </div>
         </PanelSectionRow>
       )}
