@@ -31,7 +31,12 @@ function FGModInstallerSection() {
       const result = await checkFGModPath();
       setPathExists(result.exists);
     };
-    checkPath();
+
+    checkPath(); // Initial check
+
+    const intervalId = setInterval(checkPath, 5000); // Check every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   const handleInstallClick = async () => {
@@ -75,6 +80,12 @@ function FGModInstallerSection() {
           </div>
         </PanelSectionRow>
       )}
+      <PanelSectionRow>
+        <div>
+          Once the patch is installed, you can apply the mod by adding the following to the game's launch options:<br />
+          <code>/home/deck/fgmod/fgmod %COMMAND%</code>
+        </div>
+      </PanelSectionRow>
     </PanelSection>
   );
 }

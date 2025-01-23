@@ -101,7 +101,7 @@ class Plugin:
 
             return {
                 "status": "success",
-                "output": "in the games' launch options, add: /home/deck/fgmod/fgmod %COMMAND%"
+                "output": "You can now replace DLSS with FSR Frame Gen!"
             }
 
         except subprocess.TimeoutExpired:
