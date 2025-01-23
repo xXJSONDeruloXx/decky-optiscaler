@@ -1,9 +1,9 @@
 import os
 import subprocess
 import json
-from decky_plugin import PluginBase
+import decky
 
-class Plugin(PluginBase):
+class Plugin:
     async def get_installed_games(self) -> str:
         library_file = "/home/deck/.steam/steam/steamapps/libraryfolders.vdf"
         libraries = []
