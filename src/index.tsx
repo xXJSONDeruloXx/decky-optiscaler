@@ -86,7 +86,7 @@ function FGModInstallerSection() {
   };
 
   return (
-    <PanelSection title="FG Mod Installer">
+    <PanelSection>
       {pathExists !== null && (
         <PanelSectionRow>
           <div style={{ color: pathExists ? "green" : "red" }}>
