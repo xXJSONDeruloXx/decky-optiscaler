@@ -140,14 +140,13 @@ function FGModInstallerSection() {
       {pathExists !== null && (
         <PanelSectionRow>
           <div style={{ color: pathExists ? "green" : "red" }}>
-            {pathExists ? "Patch Is Installed" : "Patch Not Installed"}
+            {pathExists ? "Mod Is Installed" : "Mod Not Installed"}
           </div>
         </PanelSectionRow>
       )}
       <PanelSectionRow>
         <div>
-          Once the patch is installed, you can apply the mod by adding the following to the game's launch options:<br />
-          <code>/home/deck/fgmod/fgmod %COMMAND%</code>
+          Once the patch is installed, launch your game, press "Set Launch Options" below, then restart the game!
         </div>
       </PanelSectionRow>
     </PanelSection>
@@ -179,7 +178,7 @@ function MainRunningApp() {
         <div>
           {mainRunningApp ? (
             <>
-              <span>Main Running App: {mainRunningApp.appid}</span>
+              <span>Running App: {mainRunningApp.appid}</span>
               <ButtonItem layout="below" onClick={handleSetLaunchOptions}>
                 Set Launch Options
               </ButtonItem>
