@@ -3,6 +3,7 @@ import {
   PanelSection,
   PanelSectionRow,
   ButtonItem,
+  Router,
 } from "@decky/ui";
 import { definePlugin, callable } from "@decky/api";
 import { FaShip } from "react-icons/fa";
@@ -153,10 +154,33 @@ function FGModInstallerSection() {
   );
 }
 
+function MainRunningApp() {
+  const mainRunningApp = Router.MainRunningApp;
+
+  return (
+    <PanelSection title="Main Running App">
+      <PanelSectionRow>
+        <div>
+          {mainRunningApp ? (
+            <span>Main Running App: {mainRunningApp.display_name}</span>
+          ) : (
+            <span>No app is currently running.</span>
+          )}
+        </div>
+      </PanelSectionRow>
+    </PanelSection>
+  );
+}
+
 export default definePlugin(() => ({
   name: "Framegen Plugin",
   titleView: <div>Framegen Plugin</div>,
-  content: <MainContent />,
+  content: (
+    <>
+      <MainContent />
+      <MainRunningApp />
+    </>
+  ),
   icon: <FaShip />,
   onDismount() {
     console.log("Framegen Plugin unmounted");
