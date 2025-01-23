@@ -9,20 +9,13 @@ fakenvapiver=v1.2.0
 standalone=1
 
 if [[ -d "$mod_path" ]] && [[ ! $mod_path == . ]]; then
-    read -p "$mod_path already exists, override the old version? [y/N] " -n 1 -r </dev/tty
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rm -r "$mod_path"
-    else
-        echo Aborting...
-        exit 1
-    fi
+    rm -r "$mod_path"
 fi
 
 # In case script gets ran from a different directory
 cd $(dirname "$0")
 
-mkdir "$mod_path"
+mkdir -p "$mod_path"
 if [[ ! $standalone -eq 0 ]]; then
     [[ -f fgmod.sh ]] && cp fgmod.sh "$mod_path/fgmod" || exit 1
     [[ -f fgmod-uninstaller.sh ]] && cp fgmod-uninstaller.sh "$mod_path" || exit 1

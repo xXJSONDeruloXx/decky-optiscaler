@@ -40,63 +40,36 @@ class Plugin(PluginBase):
 
     @callable
     async def run_install_fgmod(self) -> dict:
-        script = """
-#!/usr/bin/env bash
-
-set -euo pipefail
-trap 'echo "An error occurred. Exiting." && exit 1' ERR
-
-# Define paths
-zip_file="$HOME/homebrew/plugins/Decky-Framegen/assets/fgmod-1.5.1.zip"
-downloads_dir="$HOME/Downloads"
-destination_zip="$downloads_dir/fgmod-1.5.1.zip"
-
-# Step 1: Copy the ZIP file to Downloads if it doesn't already exist
-if [[ ! -f "$destination_zip" ]]; then
-    echo "Copying ZIP file to Downloads directory..."
-    cp "$zip_file" "$destination_zip" || { echo "Error: ZIP file not found at $zip_file"; exit 1; }
-else
-    echo "ZIP file already exists in Downloads directory. Skipping copy."
-fi
-
-# Step 2: Navigate to Downloads
-cd "$downloads_dir"
-
-# Step 3: Extract the ZIP file
-echo "Extracting ZIP file..."
-unzip -o "$(basename "$destination_zip")" || { echo "Error: Failed to extract ZIP file."; exit 1; }
-
-# Step 4: Locate the extracted directory dynamically
-echo "Locating extracted directory..."
-extracted_dir=$(find . -maxdepth 1 -type d -name "fgmod*" ! -name "__MACOSX" | head -n 1)
-
-if [[ -d "$extracted_dir" ]]; then
-    cd "$extracted_dir"
-    echo "Navigated to extracted directory: $extracted_dir"
-else
-    echo "Error: Extracted directory not found."
-    exit 1
-fi
-
-# Step 5: Run the prepare.sh script and automatically answer "y"
-echo "Running prepare.sh..."
-if [[ -f "./prepare.sh" ]]; then
-    chmod +x ./prepare.sh
-    echo "y" | ./prepare.sh || { echo "Error: prepare.sh failed."; exit 1; }
-else
-    echo "Error: prepare.sh not found in $extracted_dir"
-    exit 1
-fi
-
-# Step 6: Signal success to the front end
-echo "Installation successful!"
-# Log the success explicitly for the frontend
-echo "STATUS: SUCCESS"
-
-exit 0
-"""
         try:
-            process = subprocess.run(script, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            # Define paths
+            assets_dir = Path("/home/deck/homebrew/plugins/Decky-Framegen/assets")
+            downloads_dir = Path.home() / "Downloads"
+
+            # Copy files to Downloads, overwriting if they exist
+            files_to_copy = ["prepare.sh", "fgmod.sh", "fgmod-uninstaller.sh"]
+            for file in files_to_copy:
+                src = assets_dir / file
+                dest = downloads_dir / file
+                if src.exists():
+                    dest.write_bytes(src.read_bytes())
+                    dest.chmod(0o755)  # Make the file executable
+                else:
+                    return {"status": "error", "message": f"{file} is missing in {assets_dir}"}
+
+            # Run prepare.sh
+            prepare_script = downloads_dir / "prepare.sh"
+            process = subprocess.run([str(prepare_script)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+            # Verify key files exist, if not create it
+            fgmod_path = Path("/home/deck/fgmod")
+            if not fgmod_path.exists():
+                fgmod_path.mkdir(parents=True)
+                return {"status": "info", "message": "fgmod directory was not found and has been created"}
+
+            # Check for success message
+            if "All done!" not in process.stdout:
+                return {"status": "error", "message": "Installation did not complete successfully"}
+
             return {"status": "success", "output": process.stdout}
         except subprocess.CalledProcessError as e:
             return {"status": "error", "message": e.stderr}
