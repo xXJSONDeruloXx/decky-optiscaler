@@ -1,15 +1,30 @@
-import { useState } from "react";
-import { PanelSection, PanelSectionRow, ButtonItem } from "@decky/ui";
-import { callable, definePlugin } from "@decky/api";
+import { useState, useEffect } from "react";
+import {
+  PanelSection,
+  PanelSectionRow,
+  ButtonItem,
+  Dropdown,
+  DropdownOption
+} from "@decky/ui";
+import { definePlugin, callable } from "@decky/api";
 import { FaShip } from "react-icons/fa";
 
-const runInstallFGMod = callable<[], { status: string; message?: string; output?: string }>("run_install_fgmod");
+// "run_install_fgmod" corresponds to the Python method run_install_fgmod()
+const runInstallFGMod = callable<
+  [],
+  { status: string; message?: string; output?: string }
+>("run_install_fgmod");
 
-function Content() {
+// "get_installed_games" corresponds to the Python method get_installed_games()
+const fetchInstalledGames = callable<[], string>("get_installed_games");
+
+function FGModInstallerSection() {
   const [installing, setInstalling] = useState(false);
-  const [installResult, setInstallResult] = useState<{ status: string; output?: string; message?: string } | null>(
-    null
-  );
+  const [installResult, setInstallResult] = useState<{
+    status: string;
+    output?: string;
+    message?: string;
+  } | null>(null);
 
   const handleInstallClick = async () => {
     setInstalling(true);
@@ -28,7 +43,9 @@ function Content() {
       {installResult && (
         <PanelSectionRow>
           <div>
-            <strong>Status:</strong> {installResult.status === "success" ? "Success" : "Error"} <br />
+            <strong>Status:</strong>{" "}
+            {installResult.status === "success" ? "Success" : "Error"}
+            <br />
             {installResult.output && (
               <>
                 <strong>Output:</strong>
@@ -47,12 +64,55 @@ function Content() {
   );
 }
 
+function GameSelectorSection() {
+  const [games, setGames] = useState<DropdownOption[]>([]);
+  const [selectedGame, setSelectedGame] = useState<DropdownOption | null>(null);
+
+  useEffect(() => {
+    const loadGames = async () => {
+      const result = await fetchInstalledGames();
+      const gameList = JSON.parse(result) as { appid: string; name: string }[];
+      setGames(gameList.map((g) => ({ data: g.appid, label: g.name })));
+    };
+
+    loadGames();
+  }, []);
+
+  return (
+    <PanelSection title="Installed Games">
+      <PanelSectionRow>
+        <Dropdown
+          rgOptions={games}
+          selectedOption={selectedGame?.data || null}
+          onChange={(option) => setSelectedGame(option)}
+          strDefaultLabel="Select a game"
+        />
+      </PanelSectionRow>
+      {selectedGame && (
+        <PanelSectionRow>
+          <div>You selected: {selectedGame.label}</div>
+        </PanelSectionRow>
+      )}
+    </PanelSection>
+  );
+}
+
+function MainContent() {
+  return (
+    <>
+      <FGModInstallerSection />
+      <GameSelectorSection />
+    </>
+  );
+}
+
+// One default export, one plugin
 export default definePlugin(() => ({
-  name: "FG Mod Installer",
-  titleView: <div>FG Mod Installer</div>,
-  content: <Content />,
+  name: "Framegen Plugin",
+  titleView: <div>Framegen Plugin</div>,
+  content: <MainContent />,
   icon: <FaShip />,
   onDismount() {
-    console.log("Plugin unmounted");
+    console.log("Framegen Plugin unmounted");
   },
 }));
