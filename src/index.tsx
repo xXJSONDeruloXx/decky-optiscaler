@@ -119,7 +119,7 @@ function FGModInstallerSection() {
       {pathExists !== null && (
         <PanelSectionRow>
           <div style={{ color: pathExists ? "green" : "red" }}>
-            {pathExists ? "Path exists" : "Path does not exist"}
+            {pathExists ? "Ready to Patch" : "Mod Not Installed"}
           </div>
         </PanelSectionRow>
       )}
