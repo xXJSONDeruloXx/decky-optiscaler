@@ -1,25 +1,21 @@
-import { 
-  useState, 
-  // useEffect 
-} from "react";
+import { useState, useEffect } from "react";
 import {
   PanelSection,
   PanelSectionRow,
   ButtonItem,
-  // Dropdown,
-  // DropdownOption
 } from "@decky/ui";
 import { definePlugin, callable } from "@decky/api";
 import { FaShip } from "react-icons/fa";
 
-// "run_install_fgmod" corresponds to the Python method run_install_fgmod()
 const runInstallFGMod = callable<
   [],
   { status: string; message?: string; output?: string }
 >("run_install_fgmod");
 
-// "get_installed_games" corresponds to the Python method get_installed_games()
-// const fetchInstalledGames = callable<[], string>("get_installed_games");
+const checkFGModPath = callable<
+  [],
+  { exists: boolean }
+>("check_fgmod_path");
 
 function FGModInstallerSection() {
   const [installing, setInstalling] = useState(false);
@@ -28,6 +24,15 @@ function FGModInstallerSection() {
     output?: string;
     message?: string;
   } | null>(null);
+  const [pathExists, setPathExists] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkPath = async () => {
+      const result = await checkFGModPath();
+      setPathExists(result.exists);
+    };
+    checkPath();
+  }, []);
 
   const handleInstallClick = async () => {
     setInstalling(true);
@@ -63,53 +68,17 @@ function FGModInstallerSection() {
           </div>
         </PanelSectionRow>
       )}
+      {pathExists !== null && (
+        <PanelSectionRow>
+          <div style={{ color: pathExists ? "green" : "red" }}>
+            {pathExists ? "Path exists" : "Path does not exist"}
+          </div>
+        </PanelSectionRow>
+      )}
     </PanelSection>
   );
 }
 
-// function GameSelectorSection() {
-//   const [games, setGames] = useState<DropdownOption[]>([]);
-//   const [selectedGame, setSelectedGame] = useState<DropdownOption | null>(null);
-
-//   useEffect(() => {
-//     const loadGames = async () => {
-//       const result = await fetchInstalledGames();
-//       const gameList = JSON.parse(result) as { appid: string; name: string }[];
-//       setGames(gameList.map((g) => ({ data: g.appid, label: g.name })));
-//     };
-
-//     loadGames();
-//   }, []);
-
-//   return (
-//     <PanelSection title="Installed Games">
-//       <PanelSectionRow>
-//         <Dropdown
-//           rgOptions={games}
-//           selectedOption={selectedGame?.data || null}
-//           onChange={(option) => setSelectedGame(option)}
-//           strDefaultLabel="Select a game"
-//         />
-//       </PanelSectionRow>
-//       {selectedGame && (
-//         <PanelSectionRow>
-//           <div>You selected: {selectedGame.label}</div>
-//         </PanelSectionRow>
-//       )}
-//     </PanelSection>
-//   );
-// }
-
-function MainContent() {
-  return (
-    <>
-      <FGModInstallerSection />
-      {/* <GameSelectorSection /> */}
-    </>
-  );
-}
-
-// One default export, one plugin
 export default definePlugin(() => ({
   name: "Framegen Plugin",
   titleView: <div>Framegen Plugin</div>,
@@ -119,3 +88,11 @@ export default definePlugin(() => ({
     console.log("Framegen Plugin unmounted");
   },
 }));
+
+function MainContent() {
+  return (
+    <>
+      <FGModInstallerSection />
+    </>
+  );
+}

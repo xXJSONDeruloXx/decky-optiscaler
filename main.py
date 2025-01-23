@@ -122,3 +122,10 @@ class Plugin:
                 "status": "error",
                 "message": str(e)
             }
+
+    async def check_fgmod_path(self) -> dict:
+        path = "/home/deck/fgmod/"
+        exists = os.path.exists(path)
+        return {
+            "exists": exists
+        }
