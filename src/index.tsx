@@ -150,7 +150,7 @@ function FGModInstallerSection() {
       )}
       <PanelSectionRow>
         <div>
-          Once the patch is installed, launch your game, press "Set Launch Options" below, then restart the game!
+          Once the mod is installed, launch your game, press "Set Launch Options" below, then restart the game!
         </div>
       </PanelSectionRow>
     </PanelSection>
@@ -177,18 +177,18 @@ function MainRunningApp() {
   };
 
   return (
-    <PanelSection title="Main Running App">
+    <PanelSection title="Game Patcher">
       <PanelSectionRow>
         <div>
           {mainRunningApp ? (
             <>
-              <span>Running App: {mainRunningApp.appid}</span>
+              <span>Patch: {mainRunningApp.display_name}</span>
               <ButtonItem layout="below" onClick={handleSetLaunchOptions}>
-                Set Launch Options
+              Patch: {mainRunningApp.display_name}
               </ButtonItem>
             </>
           ) : (
-            <span>No app is currently running.</span>
+            <span>No game is currently open.</span>
           )}
         </div>
       </PanelSectionRow>
@@ -203,7 +203,7 @@ function MainRunningApp() {
 
 export default definePlugin(() => ({
   name: "Framegen Plugin",
-  titleView: <div>Framegen Plugin</div>,
+  titleView: <div>Decky Framegen</div>,
   content: (
     <>
       <FGModInstallerSection />
