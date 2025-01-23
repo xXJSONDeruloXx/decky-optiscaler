@@ -89,11 +89,14 @@ class Plugin:
             fgmod_path = Path("/home/deck/fgmod")
             fgmod_path.mkdir(parents=True, exist_ok=True)
 
+            decky.logger.info(f"Script output:\n{process.stdout}")
+            decky.logger.error(f"Script errors:\n{process.stderr}")
+
             if "All done!" not in process.stdout:
                 decky.logger.error("Installation did not complete successfully")
                 return {
                     "status": "error",
-                    "message": "Installation did not complete successfully"
+                    "message": process.stdout + process.stderr
                 }
 
             return {

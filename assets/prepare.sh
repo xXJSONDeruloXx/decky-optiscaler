@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+set -x  # Enable debugging
+exec > >(tee -i /tmp/prepare.log) 2>&1  # Log output and errors
+
+# Set the OpenSSL library path
+export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
+
 mod_path="$HOME/fgmod"
 nvidiaver=555.52.04
 enablerver=3.02.000.0
@@ -71,6 +77,6 @@ if flatpak list | grep "com.valvesoftware.Steam" 1>/dev/null; then
     flatpak override --user --filesystem="$mod_path" com.valvesoftware.Steam
 fi
 
-echo All done!
 echo For Steam, add this to the launch options: "$mod_path/fgmod" %COMMAND%
 echo For Heroic, add this as a new wrapper: "$mod_path/fgmod"
+echo All done!
