@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { 
+  useState, 
+  // useEffect 
+} from "react";
 import {
   PanelSection,
   PanelSectionRow,
   ButtonItem,
-  Dropdown,
-  DropdownOption
+  // Dropdown,
+  // DropdownOption
 } from "@decky/ui";
 import { definePlugin, callable } from "@decky/api";
 import { FaShip } from "react-icons/fa";
@@ -16,7 +19,7 @@ const runInstallFGMod = callable<
 >("run_install_fgmod");
 
 // "get_installed_games" corresponds to the Python method get_installed_games()
-const fetchInstalledGames = callable<[], string>("get_installed_games");
+// const fetchInstalledGames = callable<[], string>("get_installed_games");
 
 function FGModInstallerSection() {
   const [installing, setInstalling] = useState(false);
@@ -64,44 +67,44 @@ function FGModInstallerSection() {
   );
 }
 
-function GameSelectorSection() {
-  const [games, setGames] = useState<DropdownOption[]>([]);
-  const [selectedGame, setSelectedGame] = useState<DropdownOption | null>(null);
+// function GameSelectorSection() {
+//   const [games, setGames] = useState<DropdownOption[]>([]);
+//   const [selectedGame, setSelectedGame] = useState<DropdownOption | null>(null);
 
-  useEffect(() => {
-    const loadGames = async () => {
-      const result = await fetchInstalledGames();
-      const gameList = JSON.parse(result) as { appid: string; name: string }[];
-      setGames(gameList.map((g) => ({ data: g.appid, label: g.name })));
-    };
+//   useEffect(() => {
+//     const loadGames = async () => {
+//       const result = await fetchInstalledGames();
+//       const gameList = JSON.parse(result) as { appid: string; name: string }[];
+//       setGames(gameList.map((g) => ({ data: g.appid, label: g.name })));
+//     };
 
-    loadGames();
-  }, []);
+//     loadGames();
+//   }, []);
 
-  return (
-    <PanelSection title="Installed Games">
-      <PanelSectionRow>
-        <Dropdown
-          rgOptions={games}
-          selectedOption={selectedGame?.data || null}
-          onChange={(option) => setSelectedGame(option)}
-          strDefaultLabel="Select a game"
-        />
-      </PanelSectionRow>
-      {selectedGame && (
-        <PanelSectionRow>
-          <div>You selected: {selectedGame.label}</div>
-        </PanelSectionRow>
-      )}
-    </PanelSection>
-  );
-}
+//   return (
+//     <PanelSection title="Installed Games">
+//       <PanelSectionRow>
+//         <Dropdown
+//           rgOptions={games}
+//           selectedOption={selectedGame?.data || null}
+//           onChange={(option) => setSelectedGame(option)}
+//           strDefaultLabel="Select a game"
+//         />
+//       </PanelSectionRow>
+//       {selectedGame && (
+//         <PanelSectionRow>
+//           <div>You selected: {selectedGame.label}</div>
+//         </PanelSectionRow>
+//       )}
+//     </PanelSection>
+//   );
+// }
 
 function MainContent() {
   return (
     <>
       <FGModInstallerSection />
-      <GameSelectorSection />
+      {/* <GameSelectorSection /> */}
     </>
   );
 }
