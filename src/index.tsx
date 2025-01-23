@@ -12,6 +12,11 @@ const runInstallFGMod = callable<
   { status: string; message?: string; output?: string }
 >("run_install_fgmod");
 
+const runUninstallFGMod = callable<
+  [],
+  { status: string; message?: string; output?: string }
+>("run_uninstall_fgmod");
+
 const checkFGModPath = callable<
   [],
   { exists: boolean }
@@ -19,7 +24,13 @@ const checkFGModPath = callable<
 
 function FGModInstallerSection() {
   const [installing, setInstalling] = useState(false);
+  const [uninstalling, setUninstalling] = useState(false);
   const [installResult, setInstallResult] = useState<{
+    status: string;
+    output?: string;
+    message?: string;
+  } | null>(null);
+  const [uninstallResult, setUninstallResult] = useState<{
     status: string;
     output?: string;
     message?: string;
@@ -46,11 +57,23 @@ function FGModInstallerSection() {
     setInstallResult(result);
   };
 
+  const handleUninstallClick = async () => {
+    setUninstalling(true);
+    const result = await runUninstallFGMod();
+    setUninstalling(false);
+    setUninstallResult(result);
+  };
+
   return (
     <PanelSection title="FG Mod Installer">
       <PanelSectionRow>
         <ButtonItem layout="below" onClick={handleInstallClick} disabled={installing}>
           {installing ? "Installing..." : "Install FG Mod"}
+        </ButtonItem>
+      </PanelSectionRow>
+      <PanelSectionRow>
+        <ButtonItem layout="below" onClick={handleUninstallClick} disabled={uninstalling}>
+          {uninstalling ? "Uninstalling..." : "Uninstall FG Mod"}
         </ButtonItem>
       </PanelSectionRow>
       {installResult && (
@@ -68,6 +91,26 @@ function FGModInstallerSection() {
             {installResult.message && (
               <>
                 <strong>Error:</strong> {installResult.message}
+              </>
+            )}
+          </div>
+        </PanelSectionRow>
+      )}
+      {uninstallResult && (
+        <PanelSectionRow>
+          <div>
+            <strong>Status:</strong>{" "}
+            {uninstallResult.status === "success" ? "Success" : "Error"}
+            <br />
+            {uninstallResult.output && (
+              <>
+                <strong>Output:</strong>
+                <pre style={{ whiteSpace: "pre-wrap" }}>{uninstallResult.output}</pre>
+              </>
+            )}
+            {uninstallResult.message && (
+              <>
+                <strong>Error:</strong> {uninstallResult.message}
               </>
             )}
           </div>

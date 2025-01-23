@@ -11,43 +11,17 @@ class Plugin:
     async def _unload(self):
         decky.logger.info("Framegen plugin unloaded.")
 
-    # # Public method: front end can call this via callable("get_installed_games")
-    # async def get_installed_games(self) -> str:
-    #     library_file = "/home/deck/.steam/steam/steamapps/libraryfolders.vdf"
-    #     libraries = []
-
-    #     # Find library folders
-    #     if os.path.exists(library_file):
-    #         with open(library_file, "r") as f:
-    #             lines = f.readlines()
-    #             for line in lines:
-    #                 if '"path"' in line:
-    #                     folder_path = line.split('"')[3]
-    #                     libraries.append(os.path.join(folder_path, "steamapps"))
-
-    #     # Gather installed games
-    #     games = []
-    #     for library in libraries:
-    #         if os.path.exists(library):
-    #             manifest_files = [
-    #                 f for f in os.listdir(library)
-    #                 if f.startswith("appmanifest_")
-    #             ]
-    #             for manifest in manifest_files:
-    #                 manifest_path = os.path.join(library, manifest)
-    #                 with open(manifest_path, "r") as mf:
-    #                     lines = mf.readlines()
-    #                     appid = ""
-    #                     name = ""
-    #                     for line in lines:
-    #                         if '"appid"' in line:
-    #                             appid = line.split('"')[3]
-    #                         elif '"name"' in line:
-    #                             name = line.split('"')[3]
-    #                     if appid and name:
-    #                         games.append({"appid": appid, "name": name})
-
-    #     return json.dumps(games)
+    async def run_uninstall_fgmod(self) -> dict:
+        try:
+            result = subprocess.run(
+                ["/bin/bash", "/home/deck/homebrew/plugins/Decky-Framegen/assets/fgmod-remover.sh"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return {"status": "success", "output": result.stdout}
+        except subprocess.CalledProcessError as e:
+            return {"status": "error", "message": str(e), "output": e.output}
 
     # Public method: front end can call this via callable("run_install_fgmod")
     async def run_install_fgmod(self) -> dict:
