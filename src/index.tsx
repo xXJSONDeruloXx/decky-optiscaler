@@ -3,7 +3,7 @@ import {
   PanelSection,
   PanelSectionRow,
   ButtonItem,
-  Router,
+  Router
 } from "@decky/ui";
 import { definePlugin, callable } from "@decky/api";
 import { FaShip } from "react-icons/fa";
@@ -156,18 +156,44 @@ function FGModInstallerSection() {
 
 function MainRunningApp() {
   const mainRunningApp = Router.MainRunningApp;
+  const [result, setResult] = useState<string | null>(null);
+
+  const handleSetLaunchOptions = async () => {
+    if (mainRunningApp) {
+      try {
+        const response = await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '/home/deck/fgmod/fgmod %COMMAND%');
+        setResult(`Launch options set successfully: ${response}`);
+      } catch (error) {
+        if (error instanceof Error) {
+          setResult(`Error setting launch options: ${error.message}`);
+        } else {
+          setResult('Error setting launch options');
+        }
+      }
+    }
+  };
 
   return (
     <PanelSection title="Main Running App">
       <PanelSectionRow>
         <div>
           {mainRunningApp ? (
-            <span>Main Running App: {mainRunningApp.display_name}</span>
+            <>
+              <span>Main Running App: {mainRunningApp.appid}</span>
+              <ButtonItem layout="below" onClick={handleSetLaunchOptions}>
+                Set Launch Options
+              </ButtonItem>
+            </>
           ) : (
             <span>No app is currently running.</span>
           )}
         </div>
       </PanelSectionRow>
+      {result && (
+        <PanelSectionRow>
+          <div>{result}</div>
+        </PanelSectionRow>
+      )}
     </PanelSection>
   );
 }
@@ -177,8 +203,9 @@ export default definePlugin(() => ({
   titleView: <div>Framegen Plugin</div>,
   content: (
     <>
-      <MainContent />
+      <FGModInstallerSection />
       <MainRunningApp />
+      <MainContent />
     </>
   ),
   icon: <FaShip />,
@@ -190,7 +217,7 @@ export default definePlugin(() => ({
 function MainContent() {
   return (
     <>
-      <FGModInstallerSection />
+      {/* Other content */}
     </>
   );
 }
