@@ -1,7 +1,7 @@
 {
-  "name": "decky-plugin-template",
+  "name": "decky-framegen",
   "version": "0.0.1",
-  "description": "A template to quickly create decky plugins from scratch, based on TypeScript and webpack",
+  "description": "plugin to swap DLSS with FSR, to enable upscaling and framegen in games without built in FSR.",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
