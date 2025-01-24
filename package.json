@@ -10,21 +10,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SteamDeckHomebrew/decky-plugin-template.git"
+    "url": "git+https://github.com/xXJSONDeruloXx/Decky-Framegen.git"
   },
   "keywords": [
     "decky",
     "plugin",
-    "plugin-template",
-    "steam-deck",
-    "deck"
+    "DLSS",
+    "Framegen",
+    "Upscaling",
+    "FSR",
+    "DLSS-Swapper"
   ],
-  "author": "You <you@you.tld>",
+  "author": "no@thankyou.com",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/SteamDeckHomebrew/decky-plugin-template/issues"
+    "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen.git/issues"
   },
-  "homepage": "https://github.com/SteamDeckHomebrew/decky-plugin-template#readme",
+  "homepage": "https://github.com/xXJSONDeruloXx/Decky-Framegen.git",
   "devDependencies": {
     "@decky/rollup": "^1.0.1",
     "@decky/ui": "^4.7.2",

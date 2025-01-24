@@ -1,10 +1,10 @@
 {
   "name": "Decky Framegen",
   "author": "JSON Derulo",
-  "flags": ["debug", "_root"],
+  "flags": [],
   "api_version": 1,
   "publish": {
-    "tags": ["template", "root"],
+    "tags": ["DLSS", "Framegen","upscaling","FSR"],
     "description": "plugin to swap DLSS with FSR, to enable upscaling and framegen in games without built in FSR.",
     "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
   }
