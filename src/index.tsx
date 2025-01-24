@@ -174,7 +174,9 @@ function MainRunningApp() {
   };
 
   useEffect(() => {
-    checkLaunchOptions();
+    if (mainRunningApp) {
+      checkLaunchOptions();
+    }
   }, [mainRunningApp]);
 
   const handleSetLaunchOptions = async () => {
@@ -204,7 +206,7 @@ function MainRunningApp() {
         <div>
           {mainRunningApp ? (
             <>
-              <span>{isPatched ? `Ready to: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}</span>
+              <span>{isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}</span>
               <ButtonItem layout="below" onClick={handleSetLaunchOptions}>
                 {isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}
               </ButtonItem>
