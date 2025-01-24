@@ -3,15 +3,31 @@
 set -x  # Enable debugging
 exec > >(tee -i /tmp/prepare.log) 2>&1  # Log output and errors
 
-# Set the OpenSSL library path
-export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
+# Function to test if curl works with a given LD_LIBRARY_PATH
+test_curl() {
+    local lib_path=$1
+    export LD_LIBRARY_PATH=$lib_path:$LD_LIBRARY_PATH
+    echo "Testing curl with LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+    curl --version >/dev/null 2>&1
+    return $?
+}
+
+# Try library paths and choose the one that works
+if test_curl "/usr/lib"; then
+    echo "Using OpenSSL library path: /usr/lib"
+    export LD_LIBRARY_PATH="/usr/lib:$LD_LIBRARY_PATH"
+elif test_curl "/home/linuxbrew/.linuxbrew/lib"; then
+    echo "Using OpenSSL library path: /home/linuxbrew/.linuxbrew/lib"
+    export LD_LIBRARY_PATH="/home/linuxbrew/.linuxbrew/lib:$LD_LIBRARY_PATH"
+else
+    echo "Failed to configure OpenSSL for curl. Exiting."
+    exit 1
+fi
 
 mod_path="$HOME/fgmod"
 nvidiaver=555.52.04
 enablerver=3.02.000.0
 fakenvapiver=v1.2.0
-# standalone makes use of fgmod.sh and fgmod-uninstaller.sh from the working directory
-# To make it fully standalone with files being installed to pwd, set standalone=1 and mod_path=.
 standalone=1
 
 if [[ -d "$mod_path" ]] && [[ ! $mod_path == . ]]; then
@@ -19,7 +35,7 @@ if [[ -d "$mod_path" ]] && [[ ! $mod_path == . ]]; then
 fi
 
 # In case script gets ran from a different directory
-cd $(dirname "$0")
+cd "$(dirname "$0")"
 
 mkdir -p "$mod_path"
 if [[ ! $standalone -eq 0 ]]; then
@@ -28,11 +44,11 @@ if [[ ! $standalone -eq 0 ]]; then
 fi
 cd "$mod_path" || exit 1
 
-curl -OLf https://github.com/artur-graniszewski/DLSS-Enabler/releases/download/$enablerver/dlss-enabler-setup-$enablerver.exe
-curl -OLf https://download.nvidia.com/XFree86/Linux-x86_64/$nvidiaver/NVIDIA-Linux-x86_64-$nvidiaver.run
-curl -OLf https://raw.githubusercontent.com/mozilla/fxc2/master/dll/d3dcompiler_47.dll
-curl -OLf https://github.com/FakeMichau/innoextract/releases/download/6.3.0/innoextract
-curl -OLf https://github.com/FakeMichau/fakenvapi/releases/download/$fakenvapiver/fakenvapi.7z
+curl -OLf https://github.com/artur-graniszewski/DLSS-Enabler/releases/download/$enablerver/dlss-enabler-setup-$enablerver.exe || exit 1
+curl -OLf https://download.nvidia.com/XFree86/Linux-x86_64/$nvidiaver/NVIDIA-Linux-x86_64-$nvidiaver.run || exit 1
+curl -OLf https://raw.githubusercontent.com/mozilla/fxc2/master/dll/d3dcompiler_47.dll || exit 1
+curl -OLf https://github.com/FakeMichau/innoextract/releases/download/6.3.0/innoextract || exit 1
+curl -OLf https://github.com/FakeMichau/fakenvapi/releases/download/$fakenvapiver/fakenvapi.7z || exit 1
 [[ $standalone -eq 0 ]] && curl -o fgmod -Lf https://raw.githubusercontent.com/FakeMichau/fgmod/main/fgmod.sh
 [[ $standalone -eq 0 ]] && curl -OL https://raw.githubusercontent.com/FakeMichau/fgmod/main/fgmod-uninstaller.sh
 
