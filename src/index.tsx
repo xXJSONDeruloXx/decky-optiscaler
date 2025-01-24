@@ -150,7 +150,7 @@ function FGModInstallerSection() {
       )}
       <PanelSectionRow>
         <div>
-          Once the mod is installed, launch your game, press "Set Launch Options" below, then restart the game!
+          Once the mod is installed, launch your game, press the patch button, then restart the game!
         </div>
       </PanelSectionRow>
     </PanelSection>
@@ -162,18 +162,18 @@ function MainRunningApp() {
   const [result, setResult] = useState<string | null>(null);
   const [isPatched, setIsPatched] = useState<boolean>(false);
 
-  useEffect(() => {
-    const checkLaunchOptions = async () => {
-      if (mainRunningApp) {
-        try {
-          const currentOptions = await SteamClient.Apps.GetLaunchOptionsForApp(mainRunningApp.appid);
-          setIsPatched(currentOptions.includes('/home/deck/fgmod/fgmod %COMMAND%'));
-        } catch (error) {
-          console.error('Error checking launch options:', error);
-        }
+  const checkLaunchOptions = async () => {
+    if (mainRunningApp) {
+      try {
+        const currentOptions = await SteamClient.Apps.GetLaunchOptionsForApp(mainRunningApp.appid);
+        setIsPatched(currentOptions.includes('/home/deck/fgmod/fgmod %COMMAND%'));
+      } catch (error) {
+        console.error('Error checking launch options:', error);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     checkLaunchOptions();
   }, [mainRunningApp]);
 
@@ -182,10 +182,10 @@ function MainRunningApp() {
       try {
         if (isPatched) {
           await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '');
-          setResult(`Launch options cleared successfully.`);
+          setResult(`Launch options cleared successfully. Restart the game to restore DLSS default files`);
         } else {
           await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '/home/deck/fgmod/fgmod %COMMAND%');
-          setResult(`Launch options set successfully, restart the game to use FSR via DLSS.`);
+          setResult(`Launch options set successfully, restart the game to use FSR upscaling and frame gen via DLSS options.`);
         }
         setIsPatched(!isPatched);
       } catch (error) {
@@ -204,7 +204,7 @@ function MainRunningApp() {
         <div>
           {mainRunningApp ? (
             <>
-              <span>{isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}</span>
+              <span>{isPatched ? `Ready to: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}</span>
               <ButtonItem layout="below" onClick={handleSetLaunchOptions}>
                 {isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}
               </ButtonItem>
