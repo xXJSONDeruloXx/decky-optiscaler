@@ -6,26 +6,7 @@ This plugin swaps DLSS with FSR to enable upscaling and frame generation in game
 
 - Install and uninstall Framegen mod
 - Check if Framegen mod path exists
-
-## Installation
-
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/SteamDeckHomebrew/decky-plugin-template.git
-    cd decky-plugin-template
-    ```
-
-2. Install dependencies:
-    ```bash
-    pnpm install
-    ```
-
-3. Build the plugin:
-    ```bash
-    pnpm run build
-    ```
-
-## Usage
+- Add launch option to the running game to enable the patch
 
 ### Frontend
 
