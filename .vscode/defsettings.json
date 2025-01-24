@@ -1,11 +1,11 @@
 {
-    "deckip"    : "steamdeck.local",
+    "deckip"    : "192.168.0.6",
     "deckport"  : "22",
     "deckuser"  : "deck",
-    "deckpass"  : "ssap",
+    "deckpass"  : "gamer",
     "deckkey"   : "-i ${env:HOME}/.ssh/id_rsa",
     "deckdir"   : "/home/deck",
-    "pluginname": "Example Plugin",
+    "pluginname": "Decky-Framegen",
     "python.analysis.extraPaths": [
         "./py_modules"
     ]
