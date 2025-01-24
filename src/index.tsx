@@ -160,12 +160,34 @@ function FGModInstallerSection() {
 function MainRunningApp() {
   const mainRunningApp = Router.MainRunningApp;
   const [result, setResult] = useState<string | null>(null);
+  const [isPatched, setIsPatched] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkLaunchOptions = async () => {
+      if (mainRunningApp) {
+        try {
+          const currentOptions = await SteamClient.Apps.GetLaunchOptionsForApp(mainRunningApp.appid);
+          setIsPatched(currentOptions.includes('/home/deck/fgmod/fgmod %COMMAND%'));
+        } catch (error) {
+          console.error('Error checking launch options:', error);
+        }
+      }
+    };
+
+    checkLaunchOptions();
+  }, [mainRunningApp]);
 
   const handleSetLaunchOptions = async () => {
     if (mainRunningApp) {
       try {
-        const response = await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '/home/deck/fgmod/fgmod %COMMAND%');
-        setResult(`Launch options set successfully: ${response}`);
+        if (isPatched) {
+          await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '');
+          setResult(`Launch options cleared successfully.`);
+        } else {
+          await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '/home/deck/fgmod/fgmod %COMMAND%');
+          setResult(`Launch options set successfully, restart the game to use FSR via DLSS.`);
+        }
+        setIsPatched(!isPatched);
       } catch (error) {
         if (error instanceof Error) {
           setResult(`Error setting launch options: ${error.message}`);
@@ -182,9 +204,9 @@ function MainRunningApp() {
         <div>
           {mainRunningApp ? (
             <>
-              <span>Patch: {mainRunningApp.display_name}</span>
+              <span>{isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}</span>
               <ButtonItem layout="below" onClick={handleSetLaunchOptions}>
-              Patch: {mainRunningApp.display_name}
+                {isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}
               </ButtonItem>
             </>
           ) : (
