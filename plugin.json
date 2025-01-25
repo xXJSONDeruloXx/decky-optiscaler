@@ -6,6 +6,6 @@
   "publish": {
     "tags": ["DLSS", "Framegen","upscaling","FSR"],
     "description": "plugin to swap DLSS with FSR, to enable upscaling and framegen in games without built in FSR.",
-    "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
+    "image": "https://steamuserimages-a.akamaihd.net/ugc/25433478552776047/5693E580359F3891E1C0A3990B968CFBC6EB0C92/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false"
   }
 }
