@@ -68,7 +68,7 @@ function FGModInstallerSection() {
       }, 5000);
       return () => clearTimeout(timer);
     }
-    return () => {}; // Ensure a cleanup function is always returned
+    return () => {};
   }, [uninstallResult]);
 
   const handleInstallClick = async () => {
@@ -244,7 +244,7 @@ export default definePlugin(() => ({
 function MainContent() {
   return (
     <>
-      {/* Other content */}
+      {}
     </>
   );
 }
