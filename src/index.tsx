@@ -23,6 +23,11 @@ const checkFGModPath = callable<
   { exists: boolean }
 >("check_fgmod_path");
 
+const listInstalledGames = callable<
+  [],
+  { status: string; games: { appid: string; name: string }[] }
+>("list_installed_games");
+
 function FGModInstallerSection() {
   const [installing, setInstalling] = useState(false);
   const [uninstalling, setUninstalling] = useState(false);
@@ -225,6 +230,35 @@ function MainRunningApp() {
   );
 }
 
+function InstalledGamesSection() {
+  const [games, setGames] = useState<{ appid: string; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchGames = async () => {
+      const result = await listInstalledGames();
+      if (result.status === "success") {
+        setGames(result.games);
+      } else {
+        console.error("Failed to fetch games");
+      }
+    };
+
+    fetchGames();
+  }, []);
+
+  return (
+    <PanelSection title="Installed Games">
+      {games.map((game) => (
+        <PanelSectionRow key={game.appid}>
+          <ButtonItem layout="below">
+            {game.name} (AppID: {game.appid})
+          </ButtonItem>
+        </PanelSectionRow>
+      ))}
+    </PanelSection>
+  );
+}
+
 export default definePlugin(() => ({
   name: "Framegen Plugin",
   titleView: <div>Decky Framegen</div>,
@@ -233,6 +267,7 @@ export default definePlugin(() => ({
     <>
       <FGModInstallerSection />
       <MainRunningApp />
+      <InstalledGamesSection />
       <MainContent />
     </>
   ),

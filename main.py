@@ -23,7 +23,6 @@ class Plugin:
         except subprocess.CalledProcessError as e:
             return {"status": "error", "message": str(e), "output": e.output}
 
-    # Public method: front end can call this via callable("run_install_fgmod")
     async def run_install_fgmod(self) -> dict:
         try:
             assets_dir = Path("/home/deck/homebrew/plugins/Decky-Framegen/assets")
@@ -116,3 +115,43 @@ class Plugin:
             return {"exists": True}
         else:
             return {"exists": False}
+
+    # New method to list installed Steam games
+    async def list_installed_games(self) -> dict:
+        try:
+            steam_root = "/home/deck/.steam/steam"
+            library_file = Path(steam_root) / "steamapps" / "libraryfolders.vdf"
+
+            if not library_file.exists():
+                return {"status": "error", "message": "libraryfolders.vdf not found"}
+
+            # Parse libraryfolders.vdf to get library paths
+            library_paths = []
+            with open(library_file, "r", encoding="utf-8") as file:
+                for line in file:
+                    if '"path"' in line:
+                        path = line.split('"path"')[1].strip().strip('"').replace("\\\\", "/")
+                        library_paths.append(path)
+
+            # Extract game info from appmanifest files
+            games = []
+            for library_path in library_paths:
+                steamapps_path = Path(library_path) / "steamapps"
+                if not steamapps_path.exists():
+                    continue
+
+                for appmanifest in steamapps_path.glob("appmanifest_*.acf"):
+                    with open(appmanifest, "r", encoding="utf-8") as file:
+                        game_info = {"appid": None, "name": None}
+                        for line in file:
+                            if '"appid"' in line:
+                                game_info["appid"] = line.split('"appid"')[1].strip().strip('"')
+                            if '"name"' in line:
+                                game_info["name"] = line.split('"name"')[1].strip().strip('"')
+                        if game_info["appid"] and game_info["name"]:
+                            games.append(game_info)
+
+            return {"status": "success", "games": games}
+
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
