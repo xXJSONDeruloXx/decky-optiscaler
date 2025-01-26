@@ -228,6 +228,7 @@ function MainRunningApp() {
 export default definePlugin(() => ({
   name: "Framegen Plugin",
   titleView: <div>Decky Framegen</div>,
+  alwaysRender: true,
   content: (
     <>
       <FGModInstallerSection />
