@@ -54,7 +54,7 @@ class Plugin:
 
             prepare_script = downloads_dir / "prepare.sh"
             process = subprocess.run(
-                [str(prepare_script)],
+                ["/bin/bash", str(prepare_script)],
                 capture_output=True,
                 text=True,
                 timeout=300
@@ -91,7 +91,7 @@ class Plugin:
                 "message": e.stderr
             }
         except Exception as e:
-            decky.logger.error(f"Unexpected error: {str(e)}")
+            decky.logger.error(f"Unexpected error:  {str(e)}")
             return {
                 "status": "error",
                 "message": str(e)
