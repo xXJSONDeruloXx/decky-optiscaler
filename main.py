@@ -99,7 +99,20 @@ class Plugin:
 
     async def check_fgmod_path(self) -> dict:
         path = "/home/deck/fgmod/"
-        exists = os.path.exists(path)
-        return {
-            "exists": exists
-        }
+        required_files = [
+            "amd_fidelityfx_dx12.dll", "dlssg_to_fsr3_amd_is_better.dll", "libxess.dll",
+            "amd_fidelityfx_vk.dll", "dlssg_to_fsr3.ini", "licenses",
+            "d3dcompiler_47.dll", "dxgi.dll", "nvapi64.dll",
+            "DisableNvidiaSignatureChecks.reg", "dxvk.conf", "_nvngx.dll",
+            "dlss-enabler.dll", "fakenvapi.ini", "nvngx.ini",
+            "dlss-enabler-upscaler.dll", "fgmod", "nvngx-wrapper.dll",
+            "dlssg_to_fsr3_amd_is_better-3.0.dll", "fgmod-uninstaller.sh", "RestoreNvidiaSignatureChecks.reg"
+        ]
+
+        if os.path.exists(path):
+            for file_name in required_files:
+                if not os.path.exists(os.path.join(path, file_name)):
+                    return {"exists": False}
+            return {"exists": True}
+        else:
+            return {"exists": False}
