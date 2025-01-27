@@ -232,6 +232,7 @@ function MainRunningApp() {
 
 function InstalledGamesSection() {
   const [games, setGames] = useState<{ appid: string; name: string }[]>([]);
+  const [clickedGame, setClickedGame] = useState<{ appid: string; name: string } | null>(null);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -253,9 +254,17 @@ function InstalledGamesSection() {
     <PanelSection title="Installed Games">
       {games.map((game) => (
         <PanelSectionRow key={game.appid}>
-          <ButtonItem layout="below">
+          <ButtonItem 
+            layout="below"
+            onClick={() => setClickedGame(game)}
+          >
             {game.name} (AppID: {game.appid})
           </ButtonItem>
+          {clickedGame?.appid === game.appid && (
+            <div style={{ padding: '8px' }}>
+              You clicked {game.name} with AppID: {game.appid}
+            </div>
+          )}
         </PanelSectionRow>
       ))}
     </PanelSection>
