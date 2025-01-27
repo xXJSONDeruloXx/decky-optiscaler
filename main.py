@@ -150,8 +150,8 @@ class Plugin:
                         if game_info["appid"] and game_info["name"]:
                             games.append(game_info)
 
-            # Filter out games whose name contains "Proton"
-            filtered_games = [g for g in games if "Proton" not in g["name"]]
+            # Filter out games whose name contains "Proton" or "Steam Linux Runtime"
+            filtered_games = [g for g in games if "Proton" not in g["name"] and "Steam Linux Runtime" not in g["name"]]
 
             return {"status": "success", "games": filtered_games}
 
