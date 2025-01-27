@@ -276,7 +276,7 @@ function InstalledGamesSection() {
             layout="below"
             onClick={() => handleGameClick(game)}
           >
-            {game.name} (AppID: {game.appid})
+            {game.name}
           </ButtonItem>
           {clickedGame?.appid === game.appid && (
             <div style={{ padding: '8px' }}>
