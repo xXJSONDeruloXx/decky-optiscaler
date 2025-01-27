@@ -3,7 +3,7 @@ import {
   PanelSection,
   PanelSectionRow,
   ButtonItem,
-  Router
+  // Router
 } from "@decky/ui";
 import { definePlugin, callable } from "@decky/api";
 import { FaShip } from "react-icons/fa";
@@ -155,80 +155,80 @@ function FGModInstallerSection() {
       )}
       <PanelSectionRow>
         <div>
-          Once the mod is installed, launch your game, press the patch button, then restart the game!
+          Once the mod is installed, patch one of the games below to replace DLSS upscale and frame gen options with FSR 3 equivalents. *games with launchers not currently supported.
         </div>
       </PanelSectionRow>
     </PanelSection>
   );
 }
 
-function MainRunningApp() {
-  const mainRunningApp = Router.MainRunningApp;
-  const [result, setResult] = useState<string | null>(null);
-  const [isPatched, setIsPatched] = useState<boolean>(false);
+// function MainRunningApp() {
+//   const mainRunningApp = Router.MainRunningApp;
+//   const [result, setResult] = useState<string | null>(null);
+//   const [isPatched, setIsPatched] = useState<boolean>(false);
 
-  const checkLaunchOptions = async () => {
-    if (mainRunningApp) {
-      try {
-        const currentOptions = await SteamClient.Apps.GetLaunchOptionsForApp(mainRunningApp.appid);
-        setIsPatched(currentOptions.includes('/home/deck/fgmod/fgmod %COMMAND%'));
-      } catch (error) {
-        console.error('Error checking launch options:', error);
-      }
-    }
-  };
+//   const checkLaunchOptions = async () => {
+//     if (mainRunningApp) {
+//       try {
+//         const currentOptions = await SteamClient.Apps.GetLaunchOptionsForApp(mainRunningApp.appid);
+//         setIsPatched(currentOptions.includes('/home/deck/fgmod/fgmod %COMMAND%'));
+//       } catch (error) {
+//         console.error('Error checking launch options:', error);
+//       }
+//     }
+//   };
 
-  useEffect(() => {
-    if (mainRunningApp) {
-      checkLaunchOptions();
-    }
-  }, [mainRunningApp]);
+//   useEffect(() => {
+//     if (mainRunningApp) {
+//       checkLaunchOptions();
+//     }
+//   }, [mainRunningApp]);
 
-  const handleSetLaunchOptions = async () => {
-    if (mainRunningApp) {
-      try {
-        if (isPatched) {
-          await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '');
-          setResult(`Launch options cleared successfully. Restart the game to restore DLSS default files`);
-        } else {
-          await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '/home/deck/fgmod/fgmod %COMMAND%');
-          setResult(`Launch options set successfully, restart the game to use FSR upscaling and frame gen via DLSS options.`);
-        }
-        setIsPatched(!isPatched);
-      } catch (error) {
-        if (error instanceof Error) {
-          setResult(`Error setting launch options: ${error.message}`);
-        } else {
-          setResult('Error setting launch options');
-        }
-      }
-    }
-  };
+//   const handleSetLaunchOptions = async () => {
+//     if (mainRunningApp) {
+//       try {
+//         if (isPatched) {
+//           await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '');
+//           setResult(`Launch options cleared successfully. Restart the game to restore DLSS default files`);
+//         } else {
+//           await SteamClient.Apps.SetAppLaunchOptions(mainRunningApp.appid, '/home/deck/fgmod/fgmod %COMMAND%');
+//           setResult(`Launch options set successfully, restart the game to use FSR upscaling and frame gen via DLSS options.`);
+//         }
+//         setIsPatched(!isPatched);
+//       } catch (error) {
+//         if (error instanceof Error) {
+//           setResult(`Error setting launch options: ${error.message}`);
+//         } else {
+//           setResult('Error setting launch options');
+//         }
+//       }
+//     }
+//   };
 
-  return (
-    <PanelSection title="Game Patcher">
-      <PanelSectionRow>
-        <div>
-          {mainRunningApp ? (
-            <>
-              <span>{isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}</span>
-              <ButtonItem layout="below" onClick={handleSetLaunchOptions}>
-                {isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}
-              </ButtonItem>
-            </>
-          ) : (
-            <span>No game is currently open.</span>
-          )}
-        </div>
-      </PanelSectionRow>
-      {result && (
-        <PanelSectionRow>
-          <div>{result}</div>
-        </PanelSectionRow>
-      )}
-    </PanelSection>
-  );
-}
+//   return (
+//     <PanelSection title="Game Patcher">
+//       <PanelSectionRow>
+//         <div>
+//           {mainRunningApp ? (
+//             <>
+//               <span>{isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}</span>
+//               <ButtonItem layout="below" onClick={handleSetLaunchOptions}>
+//                 {isPatched ? `UnPatch: ${mainRunningApp.display_name}` : `Patch: ${mainRunningApp.display_name}`}
+//               </ButtonItem>
+//             </>
+//           ) : (
+//             <span>No game is currently open.</span>
+//           )}
+//         </div>
+//       </PanelSectionRow>
+//       {result && (
+//         <PanelSectionRow>
+//           <div>{result}</div>
+//         </PanelSectionRow>
+//       )}
+//     </PanelSection>
+//   );
+// }
 
 function InstalledGamesSection() {
   const [games, setGames] = useState<{ appid: number; name: string }[]>([]);
@@ -258,7 +258,7 @@ function InstalledGamesSection() {
     setClickedGame(game);
     try {
       await SteamClient.Apps.SetAppLaunchOptions(game.appid, '/home/deck/fgmod/fgmod %COMMAND%');
-      setResult(`Launch options set successfully for ${game.name}. Restart the game to use FSR upscaling and frame gen.`);
+      setResult(`Launch options set successfully for ${game.name}. You can now select DLSS in the game's menu to use FSR Upscaling and FrameGen equivalents.`);
     } catch (error) {
       if (error instanceof Error) {
         setResult(`Error setting launch options: ${error.message}`);
@@ -269,7 +269,7 @@ function InstalledGamesSection() {
   };
 
   return (
-    <PanelSection title="Installed Games">
+    <PanelSection title="Select a game below to patch:">
       {games.map((game) => (
         <PanelSectionRow key={game.appid}>
           <ButtonItem 
@@ -296,7 +296,6 @@ export default definePlugin(() => ({
   content: (
     <>
       <FGModInstallerSection />
-      <MainRunningApp />
       <InstalledGamesSection />
       <MainContent />
     </>
