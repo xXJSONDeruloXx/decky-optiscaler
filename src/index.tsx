@@ -237,7 +237,10 @@ function InstalledGamesSection() {
     const fetchGames = async () => {
       const result = await listInstalledGames();
       if (result.status === "success") {
-        setGames(result.games);
+        const sortedGames = [...result.games].sort((a, b) => 
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        );
+        setGames(sortedGames);
       } else {
         console.error("Failed to fetch games");
       }
