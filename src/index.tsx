@@ -231,16 +231,20 @@ function MainRunningApp() {
 }
 
 function InstalledGamesSection() {
-  const [games, setGames] = useState<{ appid: string; name: string }[]>([]);
-  const [clickedGame, setClickedGame] = useState<{ appid: string; name: string } | null>(null);
+  const [games, setGames] = useState<{ appid: number; name: string }[]>([]);
+  const [clickedGame, setClickedGame] = useState<{ appid: number; name: string } | null>(null);
+  const [result, setResult] = useState<string>('');
 
   useEffect(() => {
     const fetchGames = async () => {
       const result = await listInstalledGames();
       if (result.status === "success") {
-        const sortedGames = [...result.games].sort((a, b) => 
-          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-        );
+        const sortedGames = [...result.games]
+          .map(game => ({
+            ...game,
+            appid: parseInt(game.appid, 10) // Convert string to number
+          }))
+          .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
         setGames(sortedGames);
       } else {
         console.error("Failed to fetch games");
@@ -250,19 +254,33 @@ function InstalledGamesSection() {
     fetchGames();
   }, []);
 
+  const handleGameClick = async (game: { appid: number; name: string }) => {
+    setClickedGame(game);
+    try {
+      await SteamClient.Apps.SetAppLaunchOptions(game.appid, '/home/deck/fgmod/fgmod %COMMAND%');
+      setResult(`Launch options set successfully for ${game.name}. Restart the game to use FSR upscaling and frame gen.`);
+    } catch (error) {
+      if (error instanceof Error) {
+        setResult(`Error setting launch options: ${error.message}`);
+      } else {
+        setResult('Error setting launch options');
+      }
+    }
+  };
+
   return (
     <PanelSection title="Installed Games">
       {games.map((game) => (
         <PanelSectionRow key={game.appid}>
           <ButtonItem 
             layout="below"
-            onClick={() => setClickedGame(game)}
+            onClick={() => handleGameClick(game)}
           >
             {game.name} (AppID: {game.appid})
           </ButtonItem>
           {clickedGame?.appid === game.appid && (
             <div style={{ padding: '8px' }}>
-              You clicked {game.name} with AppID: {game.appid}
+              {result}
             </div>
           )}
         </PanelSectionRow>
