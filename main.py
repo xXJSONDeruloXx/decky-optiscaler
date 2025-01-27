@@ -125,7 +125,6 @@ class Plugin:
             if not library_file.exists():
                 return {"status": "error", "message": "libraryfolders.vdf not found"}
 
-            # Parse libraryfolders.vdf to get library paths
             library_paths = []
             with open(library_file, "r", encoding="utf-8") as file:
                 for line in file:
@@ -133,7 +132,6 @@ class Plugin:
                         path = line.split('"path"')[1].strip().strip('"').replace("\\\\", "/")
                         library_paths.append(path)
 
-            # Extract game info from appmanifest files
             games = []
             for library_path in library_paths:
                 steamapps_path = Path(library_path) / "steamapps"
@@ -148,10 +146,14 @@ class Plugin:
                                 game_info["appid"] = line.split('"appid"')[1].strip().strip('"')
                             if '"name"' in line:
                                 game_info["name"] = line.split('"name"')[1].strip().strip('"')
+
                         if game_info["appid"] and game_info["name"]:
                             games.append(game_info)
 
-            return {"status": "success", "games": games}
+            # Filter out games whose name contains "Proton"
+            filtered_games = [g for g in games if "Proton" not in g["name"]]
+
+            return {"status": "success", "games": filtered_games}
 
         except Exception as e:
             return {"status": "error", "message": str(e)}
