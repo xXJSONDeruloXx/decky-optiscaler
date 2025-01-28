@@ -5,7 +5,7 @@
   "api_version": 1,
   "publish": {
     "tags": ["DLSS", "Framegen","upscaling","FSR"],
-    "description": "Plugin to swap DLSS with FSR, to enable upscaling and framegen in games without built in FSR.",
+    "description": "Allows using FSR for upscaling and frame generation in games with DLSS support. Uses DLSS Enabler Installer for Linux and Steam Deck by FakeMichau.",
     "image": "https://steamuserimages-a.akamaihd.net/ugc/25433478562915060/828F24226A909559D7D64A53F961AC57AAFE581C/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false"
   }
 }
