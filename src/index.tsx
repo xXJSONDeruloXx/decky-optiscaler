@@ -242,7 +242,7 @@ function InstalledGamesSection() {
         const sortedGames = [...result.games]
           .map(game => ({
             ...game,
-            appid: parseInt(game.appid, 10) // Convert string to number
+            appid: parseInt(game.appid, 10), // Convert string to number
           }))
           .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
         setGames(sortedGames);
@@ -254,7 +254,7 @@ function InstalledGamesSection() {
     fetchGames();
   }, []);
 
-  const handleGameClick = async (game: { appid: number; name: string }) => {
+  const handlePatchClick = async (game: { appid: number; name: string }) => {
     setClickedGame(game);
     try {
       await SteamClient.Apps.SetAppLaunchOptions(game.appid, '/home/deck/fgmod/fgmod %COMMAND%');
@@ -268,16 +268,38 @@ function InstalledGamesSection() {
     }
   };
 
+  const handleUnpatchClick = async (game: { appid: number; name: string }) => {
+    setClickedGame(game);
+    try {
+      await SteamClient.Apps.SetAppLaunchOptions(game.appid, '/home/deck/fgmod/fgmod-uninstaller.sh'); // Remove mod files and launch game
+      setResult(`Launch options cleared for ${game.name}. The game is now unpatched.`);
+    } catch (error) {
+      if (error instanceof Error) {
+        setResult(`Error clearing launch options: ${error.message}`);
+      } else {
+        setResult('Error clearing launch options');
+      }
+    }
+  };
+
   return (
-    <PanelSection title="Select a game below to patch:">
+    <PanelSection title="Select a game below to patch or unpatch:">
       {games.map((game) => (
         <PanelSectionRow key={game.appid}>
-          <ButtonItem 
-            layout="below"
-            onClick={() => handleGameClick(game)}
-          >
-            {game.name}
-          </ButtonItem>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <ButtonItem 
+              layout="below"
+              onClick={() => handlePatchClick(game)}
+            >
+              Patch: {game.name}
+            </ButtonItem>
+            <ButtonItem 
+              layout="below"
+              onClick={() => handleUnpatchClick(game)}
+            >
+              Unpatch: {game.name}
+            </ButtonItem>
+          </div>
           {clickedGame?.appid === game.appid && (
             <div style={{ padding: '8px' }}>
               {result}
