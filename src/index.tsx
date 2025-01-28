@@ -271,7 +271,7 @@ function InstalledGamesSection() {
   const handleUnpatchClick = async (game: { appid: number; name: string }) => {
     setClickedGame(game);
     try {
-      await SteamClient.Apps.SetAppLaunchOptions(game.appid, '/home/deck/fgmod/fgmod-uninstaller.sh'); // Remove mod files and launch game
+      await SteamClient.Apps.SetAppLaunchOptions(game.appid, ''); // Remove custom launch options
       setResult(`Launch options cleared for ${game.name}. The game is now unpatched.`);
     } catch (error) {
       if (error instanceof Error) {
@@ -286,22 +286,27 @@ function InstalledGamesSection() {
     <PanelSection title="Select a game below to patch or unpatch:">
       {games.map((game) => (
         <PanelSectionRow key={game.appid}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <ButtonItem 
-              layout="below"
-              onClick={() => handlePatchClick(game)}
-            >
-              Patch: {game.name}
-            </ButtonItem>
-            <ButtonItem 
-              layout="below"
-              onClick={() => handleUnpatchClick(game)}
-            >
-              Unpatch: {game.name}
-            </ButtonItem>
+          <div style={{ marginBottom: '16px' }}>
+            {/* Game Name as Bold Subheader */}
+            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>{game.name}</div>
+            {/* Buttons Stacked Vertically */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <ButtonItem
+                layout="below"
+                onClick={() => handlePatchClick(game)}
+              >
+                Patch
+              </ButtonItem>
+              <ButtonItem
+                layout="below"
+                onClick={() => handleUnpatchClick(game)}
+              >
+                Unpatch
+              </ButtonItem>
+            </div>
           </div>
           {clickedGame?.appid === game.appid && (
-            <div style={{ padding: '8px' }}>
+            <div style={{ padding: '8px', marginTop: '8px' }}>
               {result}
             </div>
           )}
