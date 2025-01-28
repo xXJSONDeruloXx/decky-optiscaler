@@ -14,7 +14,7 @@ This plugin swaps DLSS with FSR to enable upscaling and frame generation in game
 
 - Artur Graniszewski for DLSS Enabler: https://github.com/artur-graniszewski/DLSS-Enabler 
 
-- DeckWizard for making an awesome demo video for the plugin beta here: https://www.youtube.com/watch?v=o_TkF-Eiq3M 
+- Deck Wizard for making an awesome tutorial & demo video for the plugin beta here: https://www.youtube.com/watch?v=o_TkF-Eiq3M 
 
 - Grown Up Gaming for creating a very early tutorial for the plugin beta here: https://www.youtube.com/watch?v=fGgc2CY6occ
 
