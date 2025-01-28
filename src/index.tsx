@@ -271,7 +271,7 @@ function InstalledGamesSection() {
   const handleUnpatchClick = async (game: { appid: number; name: string }) => {
     setClickedGame(game);
     try {
-      await SteamClient.Apps.SetAppLaunchOptions(game.appid, '/home/deck/fgmod/fgmod-uninstaller.sh');
+      await SteamClient.Apps.SetAppLaunchOptions(game.appid, '/home/deck/fgmod/fgmod-uninstaller.sh %COMMAND%');
       setResult(`DLSS mods will uninstall on next launch of ${game.name}. The game is now unpatched.`);
     } catch (error) {
       if (error instanceof Error) {
