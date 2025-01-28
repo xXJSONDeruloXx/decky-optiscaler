@@ -94,3 +94,12 @@ mv -f "amd_fidelityfx_vk.dll.b" "amd_fidelityfx_vk.dll" 2>/dev/null
 echo "Uninstaller self-removal skipped for safety. Remove manually if needed."
 
 echo "fgmod removed from this game."
+
+if [[ $# -gt 1 ]]; then
+  echo "Launching the game..."
+  export SteamDeck=0
+  export WINEDLLOVERRIDES="${WINEDLLOVERRIDES},dxgi=n,b"
+  exec "$@"
+else
+  echo "Uninstallation complete. No game specified to run."
+fi
