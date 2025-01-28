@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -x  # Enable debugging
+exec > >(tee -i /tmp/prepare.log) 2>&1  # Log output and errors
+
 error_exit() {
   echo "$1"
   if [[ -n $STEAM_ZENITY ]]; then
@@ -52,31 +55,34 @@ if [[ -d "$exe_folder_path/Engine" ]]; then
 fi
 
 # Verify the game folder exists
-if [[ -d $exe_folder_path ]]; then
-  cd "$exe_folder_path" || error_exit "Failed to change directory to $exe_folder_path"
-else
+if [[ ! -d $exe_folder_path ]]; then
   error_exit "Unable to locate the game folder. Ensure the game is installed and the path is correct."
 fi
 
+# Avoid operating on the uninstaller's own directory
+script_dir=$(dirname "$(realpath "$0")")
+if [[ "$(realpath "$exe_folder_path")" == "$script_dir" ]]; then
+  error_exit "The target directory matches the script's directory. Aborting to prevent accidental deletion."
+fi
+
+# Change to the game directory
+cd "$exe_folder_path" || error_exit "Failed to change directory to $exe_folder_path"
+
+# Verify current directory before proceeding
+if [[ "$(pwd)" != "$exe_folder_path" ]]; then
+  error_exit "Unexpected working directory: $(pwd)"
+fi
+
+# Log the resolved exe_folder_path for debugging
+echo "Resolved exe_folder_path: $exe_folder_path" >> /tmp/fgmod-uninstaller.log
+
 # Perform uninstallation
-rm "dlss-enabler.dll" 2>/dev/null
-rm "dxgi.dll" 2>/dev/null
-rm "nvngx-wrapper.dll" 2>/dev/null
-rm "_nvngx.dll" 2>/dev/null
-rm "dlssg_to_fsr3_amd_is_better.dll" 2>/dev/null
-rm "dlssg_to_fsr3_amd_is_better-3.0.dll" 2>/dev/null
-rm "dlss-enabler-upscaler.dll" 2>/dev/null
-rm "nvngx.ini" 2>/dev/null
-rm "libxess.dll" 2>/dev/null
-rm "d3dcompiler_47.dll" 2>/dev/null
-rm "amd_fidelityfx_dx12.dll" 2>/dev/null
-rm "amd_fidelityfx_vk.dll" 2>/dev/null
-rm "nvapi64.dll" 2>/dev/null
-rm "fakenvapi.ini" 2>/dev/null
-rm "OptiScaler.log" 2>/dev/null
-rm "dlss-enabler.log" 2>/dev/null
-rm "dlssg_to_fsr3.log" 2>/dev/null
-rm "fakenvapi.log" 2>/dev/null
+rm -f "dlss-enabler.dll" "dxgi.dll" "nvngx-wrapper.dll" "_nvngx.dll"
+rm -f "dlssg_to_fsr3_amd_is_better.dll" "dlssg_to_fsr3_amd_is_better-3.0.dll"
+rm -f "dlss-enabler-upscaler.dll" "nvngx.ini" "libxess.dll"
+rm -f "d3dcompiler_47.dll" "amd_fidelityfx_dx12.dll" "amd_fidelityfx_vk.dll"
+rm -f "nvapi64.dll" "fakenvapi.ini" "OptiScaler.log"
+rm -f "dlss-enabler.log" "dlssg_to_fsr3.log" "fakenvapi.log"
 
 # Restore original DLLs if they exist
 mv -f "libxess.dll.b" "libxess.dll" 2>/dev/null
@@ -84,7 +90,7 @@ mv -f "d3dcompiler_47.dll.b" "d3dcompiler_47.dll" 2>/dev/null
 mv -f "amd_fidelityfx_dx12.dll.b" "amd_fidelityfx_dx12.dll" 2>/dev/null
 mv -f "amd_fidelityfx_vk.dll.b" "amd_fidelityfx_vk.dll" 2>/dev/null
 
-# Self-remove uninstaller
-rm "$0"
+# Self-remove uninstaller (now optional for safety)
+echo "Uninstaller self-removal skipped for safety. Remove manually if needed."
 
 echo "fgmod removed from this game."
