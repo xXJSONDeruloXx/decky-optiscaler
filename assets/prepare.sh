@@ -18,7 +18,7 @@ if test_curl "/usr/lib"; then
     export LD_LIBRARY_PATH="/usr/lib:$LD_LIBRARY_PATH"
 elif test_curl "/usr/lib64"; then
     echo "Using OpenSSL library path: /usr/lib64"
-    export LD_LIBRARY_PATH="/usr/lib:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="/usr/lib64:$LD_LIBRARY_PATH"
 else
     echo "Failed to configure OpenSSL for curl. Exiting."
     exit 1
