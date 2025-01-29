@@ -6,7 +6,7 @@ import {
   // Router
 } from "@decky/ui";
 import { definePlugin, callable } from "@decky/api";
-import { FaShip } from "react-icons/fa";
+import { RiAiGenerate } from "react-icons/ri";
 
 const runInstallFGMod = callable<
   [],
@@ -327,7 +327,7 @@ export default definePlugin(() => ({
       <MainContent />
     </>
   ),
-  icon: <FaShip />,
+  icon: <RiAiGenerate />,
   onDismount() {
     console.log("Framegen Plugin unmounted");
   },
