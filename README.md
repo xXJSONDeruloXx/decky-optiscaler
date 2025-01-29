@@ -8,7 +8,7 @@ This plugin swaps DLSS with FSR to enable upscaling and frame generation in game
 - Check if Framegen mod path exists
 - Add launch option to the running game to enable the patch
 
-## Shoutouts
+## Credits
 
 - FakeMichau for various tools leveraged in this script, including fgmod, innoextract and fakenvapi: https://github.com/FakeMichau
 
