@@ -26,41 +26,26 @@ class Plugin:
     async def run_install_fgmod(self) -> dict:
         try:
             assets_dir = Path(decky.DECKY_PLUGIN_DIR) / "assets"
-            downloads_dir = Path(decky.HOME) / "Downloads"
+            prepare_script = assets_dir / "prepare.sh"
 
-            if not assets_dir.exists():
-                decky.logger.error(f"Assets directory not found: {assets_dir}")
+            if not prepare_script.exists():
+                decky.logger.error(f"prepare.sh not found: {prepare_script}")
                 return {
                     "status": "error",
-                    "message": f"Assets directory not found: {assets_dir}"
+                    "message": f"prepare.sh not found in plugin assets."
                 }
 
-            downloads_dir.mkdir(parents=True, exist_ok=True)
+            # Ensure prepare.sh has execution permissions
+            prepare_script.chmod(0o755)
 
-            files_to_copy = ["prepare.sh", "fgmod.sh", "fgmod-uninstaller.sh"]
-            for file_name in files_to_copy:
-                src = assets_dir / file_name
-                if not src.exists():
-                    decky.logger.error(f"Required file missing: {src}")
-                    return {
-                        "status": "error",
-                        "message": f"Required file missing: {file_name}"
-                    }
-
-                dest = downloads_dir / file_name
-                dest.write_bytes(src.read_bytes())
-                dest.chmod(0o755)
-
-            prepare_script = downloads_dir / "prepare.sh"
+            # Run prepare.sh directly from the plugin's assets folder
             process = subprocess.run(
                 ["/bin/bash", str(prepare_script)],
+                cwd=str(assets_dir),  # Run in assets directory to use correct paths
                 capture_output=True,
                 text=True,
                 timeout=300
             )
-
-            fgmod_path = Path(decky.HOME) / "fgmod"
-            fgmod_path.mkdir(parents=True, exist_ok=True)
 
             decky.logger.info(f"Script output:\n{process.stdout}")
             decky.logger.error(f"Script errors:\n{process.stderr}")
@@ -90,7 +75,7 @@ class Plugin:
                 "message": e.stderr
             }
         except Exception as e:
-            decky.logger.error(f"Unexpected error:  {str(e)}")
+            decky.logger.error(f"Unexpected error: {str(e)}")
             return {
                 "status": "error",
                 "message": str(e)
