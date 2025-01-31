@@ -51,7 +51,7 @@ function FGModInstallerSection() {
 
     checkPath(); // Initial check
 
-    const intervalId = setInterval(checkPath, 5000); // Check every 5 seconds
+    const intervalId = setInterval(checkPath, 3000); // Check every 3 seconds
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
@@ -155,7 +155,7 @@ function FGModInstallerSection() {
       )}
       <PanelSectionRow>
         <div>
-          Once the mod is installed, patch one of the games below to replace DLSS upscale and frame gen options with FSR 3 equivalents. *games with launchers not currently supported.
+          Once installed, patch a games below to replace DLSS upscale and frame gen options with FSR 3 equivalents. * NON STEAM GAMES, GAMES WITH LAUNCHERS, AND DX11 OR BELOW NOT SUPPORTED.
         </div>
       </PanelSectionRow>
     </PanelSection>
