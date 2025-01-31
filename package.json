@@ -1,6 +1,6 @@
 {
   "name": "decky-framegen",
-  "version": "0.4.1",
+  "version": "0.6.0",
   "description": "plugin to swap DLSS with FSR, to enable upscaling and framegen in games without built in FSR.",
   "type": "module",
   "scripts": {
@@ -62,7 +62,7 @@
     },
     {
       "name": "d3dcompiler_47.dll",
-      "url": "https://raw.githubusercontent.com/mozilla/fxc2/master/dll/d3dcompiler_47.dll",
+      "url": "https://raw.githubusercontent.com/mozilla/fxc2/9aba9b1/dll/d3dcompiler_47.dll",
       "sha256hash": "4432bbd1a390874f3f0a503d45cc48d346abc3a8c0213c289f4b615bf0ee84f3"
     },
     {
