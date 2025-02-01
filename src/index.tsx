@@ -169,17 +169,23 @@ function InstalledGamesSection() {
 
   useEffect(() => {
     const fetchGames = async () => {
-      const result = await listInstalledGames();
-      if (result.status === "success") {
-        const sortedGames = [...result.games]
-          .map(game => ({
-            ...game,
-            appid: parseInt(game.appid, 10), // Convert string to number
-          }))
-          .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-        setGames(sortedGames);
-      } else {
-        console.error("Failed to fetch games");
+      try {
+        const response = await listInstalledGames();
+        console.log("listInstalledGames response:", response);
+        if (response.status === "success") {
+          const sortedGames = [...response.games]
+            .map(game => ({
+              ...game,
+              appid: parseInt(game.appid, 10), // Convert string to number
+            }))
+            .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+          console.log("Fetched games successfully:", sortedGames.length);
+          setGames(sortedGames);
+        } else {
+          console.error("Failed to fetch games:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching games:", error);
       }
     };
 
