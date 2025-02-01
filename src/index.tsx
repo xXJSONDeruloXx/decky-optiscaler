@@ -237,20 +237,20 @@ function InstalledGamesSection() {
             </div>
           </PanelSectionRow>
           <PanelSectionRow>
-            <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
-              <ButtonItem
-                layout="below"
-                onClick={handlePatchClick}
-              >
-                Patch
-              </ButtonItem>
-              <ButtonItem
-                layout="below"
-                onClick={handleUnpatchClick}
-              >
-                Unpatch
-              </ButtonItem>
-            </div>
+            <ButtonItem
+              layout="below"
+              onClick={handlePatchClick}
+            >
+              Patch
+            </ButtonItem>
+          </PanelSectionRow>
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={handleUnpatchClick}
+            >
+              Unpatch
+            </ButtonItem>
           </PanelSectionRow>
         </>
       )}
