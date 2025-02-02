@@ -49,6 +49,7 @@
       ]
     }
   },
+  "remote_binary_bundling" : false,
   "remote_binary": [
     {
       "name": "dlss-enabler-setup-3.02.000.0.exe",
