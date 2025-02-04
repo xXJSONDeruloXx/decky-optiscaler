@@ -10,7 +10,10 @@ assignees: ''
 # **Bug Report: Decky Framegen**
 
 ### **Please Read Before Submitting**
+
 ⚠️ **Unsupported Games**: Games with launchers are **NOT** supported (e.g., **RDR2, Baldur’s Gate 3, EA, Ubisoft titles**). Reports involving these will be **closed as "Not Planned."**  
+
+⚠️ **Game Patch Compatibility Requirements**: Games must have the following to be able to work with this mod: Run in DX12, Have at least DLSS 2 or higher upscaling available, and not have any anticheat. Reports involving games that do not meet these compatibility requirements will be closed as Not Planned.
 
 ✅ **Required Information for Reporting**:
 - Logs from: `~/homebrew/logs/'Decky Framegen'/`
