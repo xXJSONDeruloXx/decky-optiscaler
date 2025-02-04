@@ -11,9 +11,10 @@ assignees: ''
 
 ### **Please Read Before Submitting**
 
-⚠️ **Unsupported Games**: Games with launchers are **NOT** supported (e.g., **RDR2, Baldur’s Gate 3, EA, Ubisoft titles**). Reports involving these will be **closed as "Not Planned."**  
+⚠️ **Unsupported Games**: Games with launchers are **NOT** supported (e.g., **RDR2, Baldur’s Gate 3, EA, Ubisoft titles**). Reports involving these will be **closed as "Not Planned."**  Additionally, we currently do not plan on adding patch/unpatch buttons to non steam games in the plugin. If you would like to add patch launch options manually, this may work, but we want to keep focus on standard Steam games for the present.
 
 ⚠️ **Game Patch Compatibility Requirements**: Games must have the following to be able to work with this mod: Run in DX12, Have at least DLSS 2 or higher upscaling available, and not have any anticheat. Reports involving games that do not meet these compatibility requirements will be closed as Not Planned.
+
 
 ✅ **Required Information for Reporting**:
 - Logs from: `~/homebrew/logs/'Decky Framegen'/`
@@ -33,7 +34,6 @@ Steps to reproduce the behavior:
 1. **Go to** '...'
 2. **Click on** '...'
 3. **Scroll to** '...'
-4. **Observe the error**
 
 ## **Expected Behavior**
 Describe **what you expected** to happen.
