@@ -281,22 +281,6 @@ function InstalledGamesSection() {
           </PanelSectionRow>
         </>
       ) : null}
-<<<<<<< HEAD
-
-      {result ? (
-        <PanelSectionRow>
-          <div style={{ 
-            padding: '12px',
-            marginTop: '16px',
-            backgroundColor: 'var(--decky-selected-ui-bg)',
-            borderRadius: '4px'
-          }}>
-            {result}
-          </div>
-        </PanelSectionRow>
-      ) : null}
-=======
->>>>>>> zip-bundle-assets
     </PanelSection>
   );
 }
@@ -315,8 +299,4 @@ export default definePlugin(() => ({
   onDismount() {
     console.log("Framegen Plugin unmounted");
   },
-<<<<<<< HEAD
 }));
-=======
-}));
->>>>>>> zip-bundle-assets
