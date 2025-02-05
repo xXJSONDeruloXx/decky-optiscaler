@@ -86,7 +86,7 @@ class Plugin:
         path = Path(decky.HOME) / "fgmod"
         required_files = [
             "amd_fidelityfx_dx12.dll", "dlssg_to_fsr3_amd_is_better.dll", "libxess.dll",
-            "amd_fidelityfx_vk.dll", "dlssg_to_fsr3.ini", "licenses",
+            "amd_fidelityfx_vk.dll", "dlssg_to_fsr3.ini",
             "d3dcompiler_47.dll", "dxgi.dll", "nvapi64.dll",
             "DisableNvidiaSignatureChecks.reg", "dxvk.conf", "_nvngx.dll",
             "dlss-enabler.dll", "fakenvapi.ini", "nvngx.ini",
@@ -102,7 +102,6 @@ class Plugin:
         else:
             return {"exists": False}
 
-    # New method to list installed Steam games
     async def list_installed_games(self) -> dict:
         try:
             steam_root = Path(decky.HOME) / ".steam" / "steam"
@@ -112,7 +111,7 @@ class Plugin:
                 return {"status": "error", "message": "libraryfolders.vdf not found"}
 
             library_paths = []
-            with open(library_file, "r", encoding="utf-8") as file:
+            with open(library_file, "r", encoding="utf-8", errors="replace") as file:
                 for line in file:
                     if '"path"' in line:
                         path = line.split('"path"')[1].strip().strip('"').replace("\\\\", "/")
@@ -125,16 +124,22 @@ class Plugin:
                     continue
 
                 for appmanifest in steamapps_path.glob("appmanifest_*.acf"):
-                    with open(appmanifest, "r", encoding="utf-8") as file:
-                        game_info = {"appid": None, "name": None}
-                        for line in file:
-                            if '"appid"' in line:
-                                game_info["appid"] = line.split('"appid"')[1].strip().strip('"')
-                            if '"name"' in line:
-                                game_info["name"] = line.split('"name"')[1].strip().strip('"')
+                    game_info = {"appid": None, "name": None}
 
-                        if game_info["appid"] and game_info["name"]:
-                            games.append(game_info)
+                    try:
+                        with open(appmanifest, "r", encoding="utf-8") as file:
+                            for line in file:
+                                if '"appid"' in line:
+                                    game_info["appid"] = line.split('"appid"')[1].strip().strip('"')
+                                if '"name"' in line:
+                                    game_info["name"] = line.split('"name"')[1].strip().strip('"')
+                    except UnicodeDecodeError as e:
+                        decky.logger.error(f"Skipping {appmanifest} due to encoding issue: {e}")
+                    finally:
+                        pass  # Ensures loop continues even if an error occurs
+
+                    if game_info["appid"] and game_info["name"]:
+                        games.append(game_info)
 
             # Filter out games whose name contains "Proton" or "Steam Linux Runtime"
             filtered_games = [g for g in games if "Proton" not in g["name"] and "Steam Linux Runtime" not in g["name"]]
@@ -147,4 +152,3 @@ class Plugin:
 
     async def log_error(self, error: str) -> None:
         decky.logger.error(f"FRONTEND: {error}")
-
