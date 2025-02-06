@@ -63,7 +63,7 @@ if [[ -d $exe_folder_path ]]; then
     error_exit "No write permission to the game folder!"
   fi
 
-  original_dlls=("libxess.dll" "d3dcompiler_47.dll" "amd_fidelityfx_dx12.dll" "amd_fidelityfx_vk.dll")
+  original_dlls=("d3dcompiler_47.dll" "amd_fidelityfx_dx12.dll" "amd_fidelityfx_vk.dll")
 
   # Assume that the mod is not installed when dlss-enabler.dll is not present
   if [[ ! -f "$exe_folder_path/dlss-enabler.dll" ]]; then
@@ -96,7 +96,6 @@ if [[ -d $exe_folder_path ]]; then
   cp -f "$mod_path/dlss-enabler-upscaler.dll" "$exe_folder_path" &&
   cp -f "$mod_path/amd_fidelityfx_dx12.dll"   "$exe_folder_path" &&
   cp -f "$mod_path/amd_fidelityfx_vk.dll"     "$exe_folder_path" &&
-  cp -f "$mod_path/libxess.dll"               "$exe_folder_path" &&
   cp -f "$mod_path/d3dcompiler_47.dll"        "$exe_folder_path" ||
   error_exit "Couldn't copy Optiscaler files!"
 
