@@ -49,12 +49,72 @@
       ]
     }
   },
-  "remote_binary_bundling" : true,
+  "remote_binary_bundling" : false,
   "remote_binary": [
     {
-      "name": "assets.zip",
-      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/DLSS-Enabler-3.03-trunk-Extraction/assets.zip",
-      "sha256hash": "6cbddbdc0c89d79ebba3e0afc7c21fa3a4b4366b3bf5cb18f18f2bb8cbba411b"
+      "name": "DisableNvidiaSignatureChecks.reg",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/DisableNvidiaSignatureChecks.reg",
+      "sha256hash": "0db810f38303fc82b6fbd0cebd7f073bf0271d3bc5f065b7584598c4eda670f7"
+    },
+    {
+      "name": "RestoreNvidiaSignatureChecks.reg",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/RestoreNvidiaSignatureChecks.reg",
+      "sha256hash": "c096400b3106fcab37ac98fd33f8c7483af0f85b118d16133ee268aa122ddc68"
+    },
+    {
+      "name": "_nvngx.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/_nvngx.dll",
+      "sha256hash": "52a68acc4e477eeff598b5ca01f26215dc5aa487c8f150b02c27ad099c11de0b"
+    },
+    {
+      "name": "amd_fidelityfx_dx12.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/amd_fidelityfx_dx12.dll",
+      "sha256hash": "c26646242680e78eec30502f8a31e46de453966915a9645fde7b19f9e270c2c7"
+    },
+    {
+      "name": "amd_fidelityfx_vk.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/amd_fidelityfx_vk.dll",
+      "sha256hash": "fa70f0e2a15258d63e4f67a41b5dcd5c97e8085336d5b2d1811345385b000840"
+    },
+    {
+      "name": "d3dcompiler_47.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/d3dcompiler_47.dll",
+      "sha256hash": "4432bbd1a390874f3f0a503d45cc48d346abc3a8c0213c289f4b615bf0ee84f3"
+    },
+    {
+      "name": "dlss-enabler-upscaler.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dlss-enabler-upscaler.dll",
+      "sha256hash": "6bfcd56b4d8f6bdecd38862b5ad5a5c470ed90aee30e5468bbde84caeaa5408a"
+    },
+    {
+      "name": "dlss-enabler.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dlss-enabler.dll",
+      "sha256hash": "ef1a18d2cea4ad0f72328d1c811f177bc66ac2d70cb4e0f52536c5934a2b7714"
+    },
+    {
+      "name": "dlss-enabler.log",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dlss-enabler.log",
+      "sha256hash": "0310f12d7c5ffa91415a886164e2e4dc9de58e19904ea4640c3815f85638c74c"
+    },
+    {
+      "name": "dlssg_to_fsr3.ini",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dlssg_to_fsr3.ini",
+      "sha256hash": "30bd3c459e4db2159db0fd5f22d42a049153bab86ece7fad2febef145181ecbf"
+    },
+    {
+      "name": "dlssg_to_fsr3.log",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dlssg_to_fsr3.log",
+      "sha256hash": "0310f12d7c5ffa91415a886164e2e4dc9de58e19904ea4640c3815f85638c74c"
+    },
+    {
+      "name": "dlssg_to_fsr3_amd_is_better.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dlssg_to_fsr3_amd_is_better.dll",
+      "sha256hash": "0db0c01234d908ba84ffc6eb476519f1491629ed0997ea10a7e06f504d0573f8"
+    },
+    {
+      "name": "dxgi.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dxgi.dll",
+      "sha256hash": "9ae73670c5dbb80f40d98176cb4426992f0cb0b9d0143b1d8083838d03b7d6fc"
     }
   ]
 }
