@@ -4,7 +4,7 @@ set -x  # Enable debugging
 exec > >(tee -i /tmp/prepare.log) 2>&1  # Log output and errors
 
 mod_path="$HOME/fgmod"
-bin_path="$(dirname "$(realpath "$0")")/../bin"
+# bin_path="$(dirname "$(realpath "$0")")/../bin"
 assets_path="$(dirname "$(realpath "$0")")"
 
 standalone=1
@@ -17,7 +17,7 @@ mkdir -p "$mod_path"
 cd "$mod_path" || exit 1
 
 # Copy required files from bin directory into the current directory
-cp "$bin_path/assets.zip" .
+cp "$assets_path/assets.zip" .
 
 # Unzip assets.zip so that all files are in the modpath root, then remove the zip file
 unzip -j -o assets.zip && rm assets.zip

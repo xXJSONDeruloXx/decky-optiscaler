@@ -79,13 +79,13 @@ echo "Resolved exe_folder_path: $exe_folder_path" >> /tmp/fgmod-uninstaller.log
 # Perform uninstallation
 rm -f "dlss-enabler.dll" "dxgi.dll" "nvngx-wrapper.dll" "_nvngx.dll"
 rm -f "dlssg_to_fsr3_amd_is_better.dll" "dlssg_to_fsr3_amd_is_better-3.0.dll"
-rm -f "dlss-enabler-upscaler.dll" "nvngx.ini" "libxess.dll"
+rm -f "dlss-enabler-upscaler.dll" "nvngx.ini"
 rm -f "d3dcompiler_47.dll" "amd_fidelityfx_dx12.dll" "amd_fidelityfx_vk.dll"
 rm -f "nvapi64.dll" "fakenvapi.ini" "OptiScaler.log"
 rm -f "dlss-enabler.log" "dlssg_to_fsr3.log" "fakenvapi.log"
 
 # Restore original DLLs if they exist
-mv -f "libxess.dll.b" "libxess.dll" 2>/dev/null
+mv -f "libxess.dll.b" "libxess.dll" 2>/dev/null # keeping this for legacy patched games to successfully revert changes with newer builds of plugin
 mv -f "d3dcompiler_47.dll.b" "d3dcompiler_47.dll" 2>/dev/null
 mv -f "amd_fidelityfx_dx12.dll.b" "amd_fidelityfx_dx12.dll" 2>/dev/null
 mv -f "amd_fidelityfx_vk.dll.b" "amd_fidelityfx_vk.dll" 2>/dev/null

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# copy of og prepare script for historical reference, things changed a lot since then, but it's still useful to have it here
 
 set -x  # Enable debugging
 exec > >(tee -i /tmp/prepare.log) 2>&1  # Log output and errors
