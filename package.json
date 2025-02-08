@@ -115,6 +115,11 @@
       "name": "dxgi.dll",
       "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dxgi.dll",
       "sha256hash": "9ae73670c5dbb80f40d98176cb4426992f0cb0b9d0143b1d8083838d03b7d6fc"
+    },
+    {
+      "name": "libxess.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/libxess.dll",
+      "sha256hash": "703ab8debc05ae209f6e4622cc06edf9f95a241f7ce68ee75c8955564d36ad70"
     }
   ]
 }
