@@ -19,12 +19,12 @@ cd "$mod_path" || exit 1
 # Copy all files from bin directory into the current directory
 cp "$bin_path"/* .
 
-# Unzip assets.zip so that all files are in the modpath root, then remove the zip file
-unzip -j -o assets.zip && rm assets.zip
+# # Unzip assets.zip so that all files are in the modpath root, then remove the zip file
+# unzip -j -o assets.zip && rm assets.zip
 
 # Copy fgmod.sh and fgmod-uninstaller.sh from defaults/assets
-cp "$assets_path/fgmod.sh" "$mod_path/fgmod" || exit 1
-cp "$assets_path/fgmod-uninstaller.sh" "$mod_path" || exit 1
+# cp "$assets_path/fgmod.sh" "$mod_path/fgmod" || exit 1
+# cp "$assets_path/fgmod-uninstaller.sh" "$mod_path" || exit 1
 
 # Update paths in scripts
 sed -i 's|mod_path="/usr/share/fgmod"|mod_path="'"$mod_path"'"|g' fgmod

@@ -146,6 +146,13 @@
         "name": "nvngx.ini",
         "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/binaries-DLSS-Enabler-3.02-Stable/nvngx.ini",
         "sha256hash": "3e083428c87054235aedb61cb4cc5afa1716a540146b978ddcd3ce2d590292a8"
+    },
+    {
+      "name": "fgmod-uninstaller.sh",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/binaries-DLSS-Enabler-3.02-Stable/fgmod-uninstaller.sh",
+      "sha256hash": "6a61ee21f587ad1976522a36adfa610140f2b486fbc812ca334b55ce50fcd395"
     }
   ]
 }
+
+
