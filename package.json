@@ -49,7 +49,7 @@
       ]
     }
   },
-  "remote_binary_bundling" : false,
+  "remote_binary_bundling" : true,
   "remote_binary": [
     {
       "name": "DisableNvidiaSignatureChecks.reg",
@@ -65,6 +65,11 @@
       "name": "_nvngx.dll",
       "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/_nvngx.dll",
       "sha256hash": "52a68acc4e477eeff598b5ca01f26215dc5aa487c8f150b02c27ad099c11de0b"
+    },
+    {
+      "name": "nvngx.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/nvngx.dll",
+      "sha256hash": "6bb7f36f7dc3fffd588f2c6d2341c13f2a690ade0a7ef6c74ccdb2387cd5952e"
     },
     {
       "name": "amd_fidelityfx_dx12.dll",
@@ -120,6 +125,21 @@
       "name": "libxess.dll",
       "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/libxess.dll",
       "sha256hash": "703ab8debc05ae209f6e4622cc06edf9f95a241f7ce68ee75c8955564d36ad70"
+    },
+    {
+      "name": "dlssg_to_fsr3_amd_is_better-3.0.dll",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/dlssg_to_fsr3_amd_is_better-3.0.dll",
+      "sha256hash": "ce794bd6489068bd316e38aceb6db323766a2172ecada0e868913526c8c06ab0"
+    },
+    {
+      "name": "nvngx.ini",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/nvngx.ini",
+      "sha256hash": "1139094f05deaa1006f1cd6d219fd9f0fca78f4aa45e4934f5d47ef7a03ee707"
+    },
+    {
+      "name": "fakenvapi.ini",
+      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/troubleshoot-binaries/fakenvapi.ini",
+      "sha256hash": "672d65665cddb21a10b525daa987179871ddf97f328861a3e4b6a76671457e28"
     }
   ]
 }
