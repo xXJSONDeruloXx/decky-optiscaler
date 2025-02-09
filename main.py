@@ -88,7 +88,7 @@ class Plugin:
             "amd_fidelityfx_dx12.dll", "dlss-enabler-upscaler.dll", "fakenvapi.ini", "_nvngx.dll",
             "amd_fidelityfx_vk.dll", "dlssg_to_fsr3_amd_is_better-3.0.dll", "fgmod", "nvngx.dll",
             "d3dcompiler_47.dll", "dlssg_to_fsr3_amd_is_better.dll", "fgmod-uninstaller.sh", "nvngx.ini",
-            "dlss-enabler.dll", "dxgi.dll", "libxess.dll"
+            "dlss-enabler.dll", "dxgi.dll", "libxess.dll", "nvngx-wrapper.dll"
         ]
 
         if path.exists():
