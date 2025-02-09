@@ -169,7 +169,7 @@ function FGModInstallerSection() {
       ) : null}
       <PanelSectionRow>
         <div>
-          Assign a back button to 'insert' keyboard key to use Optiscaler and enable FG in non FG games.
+          Install the mod above, then select and patch a game.
         </div>
       </PanelSectionRow>
     </PanelSection>
@@ -210,7 +210,7 @@ function InstalledGamesSection() {
 
     try {
       await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, '~/fgmod/fgmod %COMMAND%');
-      setResult(`Launch options set successfully for ${selectedGame.name}. You can now select DLSS in the game's menu to use FSR Upscaling and FrameGen equivalents.`);
+      setResult(`Launch options set for ${selectedGame.name}. You can now select DLSS in the game's menu.`);
     } catch (error) {
       logError('handlePatchClick: ' + String(error));
       setResult(error instanceof Error ? `Error setting launch options: ${error.message}` : 'Error setting launch options');
@@ -222,7 +222,7 @@ function InstalledGamesSection() {
 
     try {
       await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, '~/fgmod/fgmod-uninstaller.sh %COMMAND%');
-      setResult(`DLSS mods will uninstall on next launch of ${selectedGame.name}. The game is now unpatched.`);
+      setResult(`DLSS mods will uninstall on next launch of ${selectedGame.name}.`);
     } catch (error) {
       logError('handleUnpatchClick: ' + String(error));
       setResult(error instanceof Error ? `Error clearing launch options: ${error.message}` : 'Error clearing launch options');
