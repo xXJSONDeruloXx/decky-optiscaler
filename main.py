@@ -85,10 +85,10 @@ class Plugin:
     async def check_fgmod_path(self) -> dict:
         path = Path(decky.HOME) / "fgmod"
         required_files = [
-            "amd_fidelityfx_dx12.dll", "dlss-enabler-upscaler.dll", "fakenvapi.ini", "_nvngx.dll",
-            "amd_fidelityfx_vk.dll", "dlssg_to_fsr3_amd_is_better-3.0.dll", "fgmod", "nvngx.dll",
-            "d3dcompiler_47.dll", "dlssg_to_fsr3_amd_is_better.dll", "fgmod-uninstaller.sh", "nvngx.ini",
-            "dlss-enabler.dll", "dxgi.dll", "libxess.dll", "nvngx-wrapper.dll"
+            "amd_fidelityfx_dx12.dll", "amd_fidelityfx_vk.dll", "d3dcompiler_47.dll", "DisableNvidiaSignatureChecks.reg",
+            "dlss-enabler.dll", "dlss-enabler-upscaler.dll", "dlssg_to_fsr3_amd_is_better-3.0.dll", "dlssg_to_fsr3_amd_is_better.dll",
+            "dlssg_to_fsr3.ini", "dxgi.dll", "dxvk.conf", "fakenvapi.ini", "fgmod", "fgmod-uninstaller.sh",
+            "libxess.dll", "nvapi64.dll", "nvngx.ini", "nvngx-wrapper.dll", "_nvngx.dll", "RestoreNvidiaSignatureChecks.reg"
         ]
 
         if path.exists():
