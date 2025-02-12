@@ -169,7 +169,7 @@ function FGModInstallerSection() {
       ) : null}
       <PanelSectionRow>
         <div>
-          Install the mod above, then select and patch a game.
+          Install the mod above, then select and patch a game. If a game behaves strangely, be sure to select unpatch then restart the game to remove the mod.
         </div>
       </PanelSectionRow>
     </PanelSection>
