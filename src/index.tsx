@@ -3,7 +3,9 @@ import {
   PanelSection,
   PanelSectionRow,
   ButtonItem,
-  DropdownItem
+  DropdownItem,
+  ConfirmModal,
+  showModal
 } from "@decky/ui";
 import { definePlugin, callable } from "@decky/api";
 import { RiAiGenerate } from "react-icons/ri";
@@ -169,7 +171,7 @@ function FGModInstallerSection() {
       ) : null}
       <PanelSectionRow>
         <div>
-          Install the mod above, then select and patch a game. If a game behaves strangely, be sure to select unpatch then restart the game to remove the mod.
+          Install the mod above, then select and patch a game below to enable DLSS in the game's menu.
         </div>
       </PanelSectionRow>
     </PanelSection>
@@ -208,13 +210,26 @@ function InstalledGamesSection() {
   const handlePatchClick = async () => {
     if (!selectedGame) return;
 
-    try {
-      await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, '~/fgmod/fgmod %COMMAND%');
-      setResult(`Launch options set for ${selectedGame.name}. You can now select DLSS in the game's menu.`);
-    } catch (error) {
-      logError('handlePatchClick: ' + String(error));
-      setResult(error instanceof Error ? `Error setting launch options: ${error.message}` : 'Error setting launch options');
-    }
+    // Show confirmation modal
+    showModal(
+      <ConfirmModal 
+        strTitle={`Patch ${selectedGame.name}?`}
+        strDescription={
+          "WARNING: Decky Framegen does not unpatch games when uninstalled. Be sure to unpatch the game or verify the integrity of your game files if you choose to uninstall the plugin or the game has issues."
+        }
+        strOKButtonText="Yeah man, I wanna do it"
+        strCancelButtonText="Cancel"
+        onOK={async () => {
+          try {
+            await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, '~/fgmod/fgmod %COMMAND%');
+            setResult(`Launch options set for ${selectedGame.name}. You can now select DLSS in the game's menu.`);
+          } catch (error) {
+            logError('handlePatchClick: ' + String(error));
+            setResult(error instanceof Error ? `Error setting launch options: ${error.message}` : 'Error setting launch options');
+          }
+        }}
+      />
+    );
   };
 
   const handleUnpatchClick = async () => {
