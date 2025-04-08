@@ -1,7 +1,7 @@
 {
-  "name": "decky-framegen",
+  "name": "decky-optiscaler",
   "version": "0.9.1",
-  "description": "plugin to swap DLSS with FSR, to enable upscaling and framegen in games without built in FSR.",
+  "description": "plugin to download, install, and configure Optiscaler within gamemode.",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xXJSONDeruloXx/Decky-Framegen.git"
+    "url": "git+https://github.com/xXJSONDeruloXx/decky-optiscaler.git"
   },
   "keywords": [
     "decky",
@@ -24,9 +24,9 @@
   "author": "no@thankyou.com",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen.git/issues"
+    "url": "https://github.com/xXJSONDeruloXx/decky-optiscaler.git/issues"
   },
-  "homepage": "https://github.com/xXJSONDeruloXx/Decky-Framegen.git",
+  "homepage": "https://github.com/xXJSONDeruloXx/decky-optiscaler.git",
   "devDependencies": {
     "@decky/rollup": "^1.0.1",
     "@decky/ui": "^4.7.2",

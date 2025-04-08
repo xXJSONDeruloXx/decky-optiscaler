@@ -1,6 +1,6 @@
-# Decky Framegen Plugin
+# Decky Optiscaler Plugin
 
-This plugin swaps DLSS with FSR to enable upscaling and frame generation in games without built-in FSR support.
+This plugin automates the updating, installing, and configuring of Optiscaler via game mode.
 
 ## Features
 

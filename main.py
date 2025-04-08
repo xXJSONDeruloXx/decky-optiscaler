@@ -11,6 +11,91 @@ class Plugin:
     async def _unload(self):
         decky.logger.info("Framegen plugin unloaded.")
 
+    async def download_optiscaler_nightly(self) -> dict:
+        """Download the latest OptiScaler nightly build from GitHub using wget."""
+        try:
+            # Set up constants for clarity
+            owner = 'cdozdil'
+            repo = 'OptiScaler'
+            tag = 'nightly'
+            download_path = Path(decky.HOME) / "Downloads"
+            download_path.mkdir(exist_ok=True)
+            
+            # Log the start of the download
+            decky.logger.info("Starting OptiScaler nightly download")
+            
+            # Step 1: Get release info using wget and jq
+            release_info_file = download_path / "optiscaler_release_info.json"
+            release_url = f"https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}"
+            
+            wget_api_cmd = [
+                "wget",
+                "-O", str(release_info_file),
+                release_url
+            ]
+            
+            decky.logger.info(f"Fetching release info from {release_url}")
+            subprocess.run(
+                wget_api_cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            # Step 2: Parse the JSON and find the 7z asset
+            with open(release_info_file, 'r') as f:
+                release_data = json.load(f)
+            
+            assets = release_data.get('assets', [])
+            asset_data = next((a for a in assets if a['name'].endswith('.7z')), None)
+            
+            # Clean up the temporary file
+            release_info_file.unlink(missing_ok=True)
+            
+            if not asset_data:
+                return {"status": "error", "message": "No 7z file found in release"}
+                
+            # Step 3: Download the file using wget
+            asset_url = asset_data['browser_download_url']
+            asset_name = asset_data['name']
+            output_file = download_path / asset_name
+            
+            decky.logger.info(f"Downloading {asset_name} to {output_file}")
+            
+            # Run wget command to download the actual asset
+            wget_cmd = [
+                "wget",
+                "-O", str(output_file),
+                asset_url
+            ]
+            
+            result = subprocess.run(
+                wget_cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            decky.logger.info(f"Download complete: {output_file}")
+            return {
+                "status": "success", 
+                "message": f"Downloaded {asset_name} to ~/Downloads", 
+                "file_path": str(output_file)
+            }
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"wget failed: {e.stderr}"
+            decky.logger.error(error_msg)
+            return {"status": "error", "message": error_msg}
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse GitHub API response: {str(e)}"
+            decky.logger.error(error_msg)
+            return {"status": "error", "message": error_msg}
+        except Exception as e:
+            error_msg = str(e)
+            decky.logger.error(f"Download failed: {error_msg}")
+            return {"status": "error", "message": f"Download failed: {error_msg}"}
+
     async def run_uninstall_fgmod(self) -> dict:
         try:
             result = subprocess.run(

@@ -32,9 +32,15 @@ const listInstalledGames = callable<
 
 const logError = callable<[string], void>("log_error");
 
+const downloadLatestOptiScaler = callable<
+  [],
+  { status: string; message: string; file_path?: string }
+>("download_optiscaler_nightly");
+
 function FGModInstallerSection() {
   const [installing, setInstalling] = useState(false);
   const [uninstalling, setUninstalling] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [installResult, setInstallResult] = useState<{
     status: string;
     output?: string;
@@ -44,6 +50,10 @@ function FGModInstallerSection() {
     status: string;
     output?: string;
     message?: string;
+  } | null>(null);
+  const [downloadStatus, setDownloadStatus] = useState<{
+    success: boolean;
+    message: string;
   } | null>(null);
   const [pathExists, setPathExists] = useState<boolean | null>(null);
 
@@ -82,6 +92,13 @@ function FGModInstallerSection() {
     return () => {};
   }, [uninstallResult]);
 
+  useEffect(() => {
+    if (downloadStatus) {
+      const timer = setTimeout(() => setDownloadStatus(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [downloadStatus]);
+
   const handleInstallClick = async () => {
     try {
       setInstalling(true);
@@ -104,6 +121,37 @@ function FGModInstallerSection() {
       logError('handleUninstallClick' + String(e));
       console.error(e)
     }
+  };
+
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+      setDownloadStatus(null);
+      
+      console.log("Starting OptiScaler download...");
+      
+      const result = await downloadLatestOptiScaler();
+      
+      console.log("Download complete:", result);
+      
+      setDownloadStatus({
+        success: result.status === "success",
+        message: result.message
+      });
+    } catch (error) {
+      console.error("Download failed:", error);
+      logError(`Download error: ${String(error)}`);
+      setDownloadStatus({
+        success: false,
+        message: `Error: ${String(error)}`
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleOpenGoogle = () => {
+    window.open("https://www.google.com", "_blank");
   };
 
   return (
@@ -129,6 +177,31 @@ function FGModInstallerSection() {
           </ButtonItem>
         </PanelSectionRow>
       ) : null}
+      <PanelSectionRow>
+        <ButtonItem layout="below" onClick={handleOpenGoogle}>
+          Open Google
+        </ButtonItem>
+      </PanelSectionRow>
+      <PanelSectionRow>
+        <ButtonItem 
+          layout="below" 
+          onClick={handleDownload} 
+          disabled={isDownloading}
+        >
+          {isDownloading ? "Downloading..." : "Download OptiScaler Nightly"}
+        </ButtonItem>
+        
+        {downloadStatus && (
+          <div style={{ 
+            marginTop: '8px',
+            padding: '10px',
+            backgroundColor: downloadStatus.success ? 'rgba(0, 128, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
+            borderRadius: '4px'
+          }}>
+            <strong>{downloadStatus.success ? 'Success:' : 'Error:'}</strong> {downloadStatus.message}
+          </div>
+        )}
+      </PanelSectionRow>
       {installResult ? (
         <PanelSectionRow>
           <div>
@@ -302,7 +375,7 @@ function InstalledGamesSection() {
 
 export default definePlugin(() => ({
   name: "Framegen Plugin",
-  titleView: <div>Decky Framegen</div>,
+  titleView: <div>Decky Optiscaler</div>,
   alwaysRender: true,
   content: (
     <>
