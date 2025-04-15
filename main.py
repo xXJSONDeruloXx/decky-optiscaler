@@ -211,21 +211,22 @@ class Plugin:
             try:
                 ini_file = extract_path / "OptiScaler.ini"
                 if ini_file.exists():
-                    decky.logger.info(f"Updating {ini_file} to set FGType=nukems")
+                    # Comment out the FGType modification
+                    decky.logger.info(f"FGType=nukems feature disabled, keeping original INI settings")
                     
-                    # Read the file content
-                    with open(ini_file, 'r') as f:
-                        content = f.read()
+                    # Original implementation:
+                    # decky.logger.info(f"Updating {ini_file to set FGType=nukems")
+                    # # Read the file content
+                    # with open(ini_file, 'r') as f:
+                    #     content = f.read()
+                    # # Replace FGType=auto with FGType=nukems using regex for flexibility
+                    # import re
+                    # updated_content = re.sub(r'FGType\s*=\s*auto', 'FGType=nukems', content)
+                    # # Write the updated content back to the file
+                    # with open(ini_file, 'w') as f:
+                    #     f.write(updated_content)
                     
-                    # Replace FGType=auto with FGType=nukems using regex for flexibility
-                    import re
-                    updated_content = re.sub(r'FGType\s*=\s*auto', 'FGType=nukems', content)
-                    
-                    # Write the updated content back to the file
-                    with open(ini_file, 'w') as f:
-                        f.write(updated_content)
-                    
-                    decky.logger.info("Successfully updated OptiScaler.ini to use nukems for FGType")
+                    decky.logger.info("Preserving original OptiScaler.ini FGType settings")
                 else:
                     decky.logger.error(f"OptiScaler.ini not found at {ini_file}")
             except Exception as e:
