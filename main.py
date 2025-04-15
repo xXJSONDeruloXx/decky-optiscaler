@@ -12,7 +12,7 @@ class Plugin:
         decky.logger.info("Framegen plugin unloaded.")
 
     async def download_optiscaler_nightly(self) -> dict:
-        """Download the latest OptiScaler nightly build from GitHub using wget and extract it."""
+        """Download the latest OptiScaler nightly build from GitHub using wget and extract it to ~/opti."""
         try:
             # Set up constants for clarity
             owner = 'cdozdil'
@@ -20,6 +20,8 @@ class Plugin:
             tag = 'nightly'
             download_path = Path(decky.HOME) / "Downloads"
             download_path.mkdir(exist_ok=True)
+            extract_path = Path(decky.HOME) / "opti"
+            extract_path.mkdir(exist_ok=True)
             
             # Log the start of the download
             decky.logger.info("Starting OptiScaler nightly download")
@@ -60,6 +62,16 @@ class Plugin:
             asset_name = asset_data['name']
             output_file = download_path / asset_name
             
+            # Extract version information from filename
+            # Example: OptiScaler_v0.7.7-pre8_20250415.7z -> v0.7.7-pre8_20250415
+            version_match = asset_name.replace('.7z', '')
+            if '_v' in version_match:
+                version = 'v' + version_match.split('_v')[1]
+            else:
+                version = version_match  # Fallback if naming pattern changes
+            
+            decky.logger.info(f"Detected version: {version}")
+            
             decky.logger.info(f"Downloading {asset_name} to {output_file}")
             
             # Run wget command to download the actual asset
@@ -78,10 +90,7 @@ class Plugin:
             
             decky.logger.info(f"Download complete: {output_file}")
             
-            # Step 4: Extract the 7z file
-            extract_path = download_path / asset_name.replace('.7z', '')
-            extract_path.mkdir(exist_ok=True)
-            
+            # Step 4: Extract the 7z file directly to ~/opti
             decky.logger.info(f"Extracting {output_file} to {extract_path}")
             
             extract_cmd = [
@@ -109,11 +118,34 @@ class Plugin:
                 }
             
             decky.logger.info(f"Extraction complete to {extract_path}")
+            
+            # Step 5: Create version.txt file in the extract path
+            version_file = extract_path / "version.txt"
+            try:
+                with open(version_file, 'w') as f:
+                    f.write(version)
+                decky.logger.info(f"Created version file at {version_file}")
+            except Exception as e:
+                decky.logger.error(f"Failed to create version file: {e}")
+                # Continue with the process even if version file creation fails
+            
+            # Step 6: Remove the .7z file from Downloads
+            try:
+                output_file.unlink()
+                decky.logger.info(f"Removed downloaded archive: {output_file}")
+            except Exception as e:
+                decky.logger.error(f"Failed to remove downloaded archive: {e}")
+                return {
+                    "status": "partial_success",
+                    "message": f"Downloaded and extracted to ~/opti but failed to remove the .7z file",
+                    "extract_path": str(extract_path)
+                }
+            
             return {
                 "status": "success", 
-                "message": f"Downloaded and extracted {asset_name} to ~/Downloads/{extract_path.name}", 
-                "file_path": str(output_file),
-                "extract_path": str(extract_path)
+                "message": f"Downloaded and extracted OptiScaler {version} to ~/opti", 
+                "extract_path": str(extract_path),
+                "version": version
             }
             
         except subprocess.CalledProcessError as e:

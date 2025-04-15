@@ -97,6 +97,7 @@ function FGModInstallerSection() {
       const timer = setTimeout(() => setDownloadStatus(null), 5000);
       return () => clearTimeout(timer);
     }
+    return undefined; // Explicitly return undefined for all code paths
   }, [downloadStatus]);
 
   const handleInstallClick = async () => {
