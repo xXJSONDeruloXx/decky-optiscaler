@@ -3,6 +3,14 @@
 set -x  # Enable debugging
 exec > >(tee -i /tmp/prepare.log) 2>&1  # Log output and errors
 
+# Print shell environment information
+echo "Shell Environment:"
+echo "SHELL: $SHELL"
+echo "BASH_VERSION: $BASH_VERSION"
+echo "PWD: $PWD"
+echo "Running as user: $(whoami)"
+echo "------------------------"
+
 mod_path="$HOME/fgmod"
 bin_path="$(dirname "$(realpath "$0")")/../bin"
 assets_path="$(dirname "$(realpath "$0")")"
