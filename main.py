@@ -421,3 +421,60 @@ class Plugin:
         except Exception as e:
             decky.logger.error(f"Error checking OptiScaler path: {e}")
             return {"exists": False, "version": ""}
+
+    async def get_optiscaler_fgtype(self) -> dict:
+        """Get the current FGType value from OptiScaler.ini."""
+        try:
+            import re
+            opti_path = Path(decky.HOME) / "opti"
+            ini_file = opti_path / "OptiScaler.ini"
+            
+            if not ini_file.exists():
+                return {"status": "error", "message": "OptiScaler.ini not found", "fgtype": "unknown"}
+            
+            # Read the file content
+            with open(ini_file, 'r') as f:
+                content = f.read()
+            
+            # Find the FGType setting
+            match = re.search(r'FGType\s*=\s*(\w+)', content)
+            if match:
+                fgtype = match.group(1)
+                return {"status": "success", "fgtype": fgtype}
+            else:
+                return {"status": "error", "message": "FGType setting not found", "fgtype": "unknown"}
+        except Exception as e:
+            decky.logger.error(f"Error getting FGType: {e}")
+            return {"status": "error", "message": str(e), "fgtype": "unknown"}
+
+    async def set_optiscaler_fgtype(self, fgtype: str) -> dict:
+        """Set the FGType value in OptiScaler.ini."""
+        try:
+            import re
+            opti_path = Path(decky.HOME) / "opti"
+            ini_file = opti_path / "OptiScaler.ini"
+            
+            if not ini_file.exists():
+                return {"status": "error", "message": "OptiScaler.ini not found"}
+            
+            # Validate fgtype
+            valid_types = ["auto", "nofg", "optifg", "nukems"]
+            if fgtype not in valid_types:
+                return {"status": "error", "message": f"Invalid FGType: {fgtype}"}
+            
+            # Read the file content
+            with open(ini_file, 'r') as f:
+                content = f.read()
+            
+            # Replace FGType setting
+            updated_content = re.sub(r'(FGType\s*=\s*)(\w+)', f'\\1{fgtype}', content)
+            
+            # Write the updated content back to the file
+            with open(ini_file, 'w') as f:
+                f.write(updated_content)
+            
+            decky.logger.info(f"Updated OptiScaler.ini FGType to {fgtype}")
+            return {"status": "success", "message": f"FGType set to {fgtype}"}
+        except Exception as e:
+            decky.logger.error(f"Error setting FGType: {e}")
+            return {"status": "error", "message": str(e)}

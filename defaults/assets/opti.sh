@@ -122,6 +122,16 @@ echo "✅ OptiScaler installed in: $exe_folder_path with DLL: $dll_name"
 if [[ $# -gt 1 ]]; then
   echo "🚀 Launching game with args: $@"
   logger -t optiscaler "🚀 Launching: $@"
-  export WINEDLLOVERRIDES="$WINEDLLOVERRIDES,$dll_name=n,b"
+
+  # Set DLL override
+  dll_override="${dll_name%.dll}"
+  if [[ "$WINEDLLOVERRIDES" != *"$dll_override=n,b"* ]]; then
+    export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:+$WINEDLLOVERRIDES,}$dll_override=n,b"
+  fi
+  logger -t optiscaler "🔧 DLL override: $dll_override=n,b"
+
+  # Explicitly disable SteamDeck environment (some overlays/launchers check this)
+  export SteamDeck=0
+
   "$@"
 fi
