@@ -120,12 +120,46 @@ function FGModInstallerSection() {
   const handleInstallClick = async () => {
     try {
       setInstalling(true);
-      const result = await runInstallFGMod();
-      setInstalling(false);
-      setInstallResult(result);
+      
+      // First, install FGMod
+      console.log("Installing FGMod...");
+      const fgmodResult = await runInstallFGMod();
+      
+      // Log but don't update UI yet, as we have more to do
+      console.log("FGMod installation result:", fgmodResult);
+      
+      // If FGMod installation succeeded, download OptiScaler as well
+      if (fgmodResult.status === "success") {
+        console.log("FGMod installed, now downloading OptiScaler...");
+        
+        // Show temporary notification that we're downloading OptiScaler
+        setInstallResult({
+          status: "success",
+          output: "FGMod installed successfully, now downloading OptiScaler..."
+        });
+        
+        // Download OptiScaler
+        const optiResult = await downloadLatestOptiScaler();
+        console.log("OptiScaler download result:", optiResult);
+        
+        // Update UI with combined result
+        setInstallResult({
+          status: "success",
+          output: `FGMod installed. OptiScaler ${optiResult.status === "success" ? "also installed" : "download had issues"}. ${optiResult.version ? `(Version: ${optiResult.version})` : ""}`
+        });
+      } else {
+        // Just show the FGMod result if it failed
+        setInstallResult(fgmodResult);
+      }
     } catch (e) {
       logError('handleInstallClick: ' + String(e));
-      console.error(e)
+      console.error(e);
+      setInstallResult({
+        status: "error",
+        message: String(e)
+      });
+    } finally {
+      setInstalling(false);
     }
   };
 
@@ -133,19 +167,22 @@ function FGModInstallerSection() {
     try {
       setUninstalling(true);
       const result = await runUninstallFGMod();
-      setUninstalling(false);
       setUninstallResult(result);
     } catch (e) {
-      logError('handleUninstallClick' + String(e));
-      console.error(e)
+      logError('handleUninstallClick: ' + String(e));
+      console.error(e);
+      setUninstallResult({
+        status: "error",
+        message: String(e)
+      });
+    } finally {
+      setUninstalling(false);
     }
   };
 
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
-      setDownloadStatus(null);
-      
       console.log("Starting OptiScaler download...");
       
       const result = await downloadLatestOptiScaler();
