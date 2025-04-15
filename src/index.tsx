@@ -168,9 +168,7 @@ function FGModInstallerSection() {
     }
   };
 
-  const handleOpenGoogle = () => {
-    window.open("https://www.google.com", "_blank");
-  };
+
 
   return (
     <PanelSection>
@@ -196,29 +194,24 @@ function FGModInstallerSection() {
       {pathExists === false ? (
         <PanelSectionRow>
           <ButtonItem layout="below" onClick={handleInstallClick} disabled={installing}>
-            {installing ? "Installing..." : "Install FG Mod"}
+            {installing ? "Installing..." : "Install Mod Files"}
           </ButtonItem>
         </PanelSectionRow>
       ) : null}
       {pathExists === true ? (
         <PanelSectionRow>
           <ButtonItem layout="below" onClick={handleUninstallClick} disabled={uninstalling}>
-            {uninstalling ? "Uninstalling..." : "Uninstall FG Mod"}
+            {uninstalling ? "Uninstalling..." : "Uninstall Mod Files"}
           </ButtonItem>
         </PanelSectionRow>
-      ) : null}
-      <PanelSectionRow>
-        <ButtonItem layout="below" onClick={handleOpenGoogle}>
-          Open Google
-        </ButtonItem>
-      </PanelSectionRow>
+      ) : null}      
       <PanelSectionRow>
         <ButtonItem 
           layout="below" 
           onClick={handleDownload} 
           disabled={isDownloading}
         >
-          {isDownloading ? "Downloading..." : "Download OptiScaler Nightly"}
+          {isDownloading ? "Downloading..." : "Update OptiScaler Nightly"}
         </ButtonItem>
         
         {downloadStatus && (
