@@ -299,3 +299,33 @@ class Plugin:
 
     async def log_error(self, error: str) -> None:
         decky.logger.error(f"FRONTEND: {error}")
+
+    async def check_optiscaler_path(self) -> dict:
+        """Check if OptiScaler is installed properly in ~/opti and get its version."""
+        try:
+            opti_path = Path(decky.HOME) / "opti"
+            version_file = opti_path / "version.txt"
+            required_files = ["OptiScaler.dll", "OptiScaler.ini"]
+            
+            # Check if directory exists
+            if not opti_path.exists() or not opti_path.is_dir():
+                return {"exists": False, "version": ""}
+            
+            # Check for required files
+            for file_name in required_files:
+                if not (opti_path / file_name).exists():
+                    return {"exists": False, "version": ""}
+            
+            # Check for and read version.txt
+            version = ""
+            if version_file.exists():
+                try:
+                    with open(version_file, 'r') as f:
+                        version = f.read().strip()
+                except Exception as e:
+                    decky.logger.error(f"Failed to read version file: {e}")
+            
+            return {"exists": True, "version": version}
+        except Exception as e:
+            decky.logger.error(f"Error checking OptiScaler path: {e}")
+            return {"exists": False, "version": ""}
