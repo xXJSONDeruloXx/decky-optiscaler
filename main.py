@@ -2,6 +2,7 @@ import decky  # Old-style Decky import
 import os
 import subprocess
 import json
+import shutil
 from pathlib import Path
 
 class Plugin:
@@ -140,6 +141,97 @@ class Plugin:
                     "message": f"Downloaded and extracted to ~/opti but failed to remove the .7z file",
                     "extract_path": str(extract_path)
                 }
+            
+            # Step 7: Create renamed copies of OptiScaler.dll in a renames directory
+            try:
+                # Create the renames directory
+                renames_dir = extract_path / "renames"
+                renames_dir.mkdir(exist_ok=True)
+                
+                # Source file
+                source_file = extract_path / "OptiScaler.dll"
+                
+                # List of names to create
+                rename_files = [
+                    "dxgi.dll",
+                    "winmm.dll",
+                    "dbghelp.dll",
+                    "version.dll",
+                    "wininet.dll",
+                    "winhttp.dll",
+                    "OptiScaler.asi"
+                ]
+                
+                # Check if source file exists
+                if not source_file.exists():
+                    decky.logger.error(f"Source file {source_file} does not exist, can't create renames")
+                else:
+                    # Create each renamed copy
+                    for rename_file in rename_files:
+                        dest_file = renames_dir / rename_file
+                        # Use shutil.copy2 to preserve metadata
+                        shutil.copy2(source_file, dest_file)
+                        decky.logger.info(f"Created renamed copy: {dest_file}")
+                    
+                    decky.logger.info(f"Created all renamed copies in {renames_dir}")
+
+                    # Download nvngx_dlss.dll from GitHub and save as nvngx.dll in renames directory
+                    try:
+                        nvngx_url = "https://raw.githubusercontent.com/NVIDIAGameWorks/Streamline/main/bin/x64/nvngx_dlss.dll"
+                        nvngx_dest = renames_dir / "nvngx.dll"
+                        
+                        decky.logger.info(f"Downloading nvngx_dlss.dll from GitHub to {nvngx_dest}")
+                        
+                        nvngx_cmd = [
+                            "wget",
+                            "-O", str(nvngx_dest),
+                            nvngx_url
+                        ]
+                        
+                        nvngx_result = subprocess.run(
+                            nvngx_cmd,
+                            capture_output=True,
+                            text=True,
+                            check=False  # Don't raise exception if download fails
+                        )
+                        
+                        if nvngx_result.returncode != 0:
+                            decky.logger.error(f"Failed to download nvngx_dlss.dll: {nvngx_result.stderr}")
+                        else:
+                            decky.logger.info(f"Successfully downloaded nvngx_dlss.dll as {nvngx_dest}")
+                    except Exception as e:
+                        decky.logger.error(f"Failed to download nvngx_dlss.dll: {e}")
+                        # Continue with the process even if this download fails
+
+            except Exception as e:
+                decky.logger.error(f"Failed to create renamed copies: {e}")
+                # Continue with the process even if renaming fails
+            
+            # Step 8: Update OptiScaler.ini to set FGType=nukems
+            try:
+                ini_file = extract_path / "OptiScaler.ini"
+                if ini_file.exists():
+                    # Comment out the FGType modification
+                    decky.logger.info(f"FGType=nukems feature disabled, keeping original INI settings")
+                    
+                    # Original implementation:
+                    # decky.logger.info(f"Updating {ini_file to set FGType=nukems")
+                    # # Read the file content
+                    # with open(ini_file, 'r') as f:
+                    #     content = f.read()
+                    # # Replace FGType=auto with FGType=nukems using regex for flexibility
+                    # import re
+                    # updated_content = re.sub(r'FGType\s*=\s*auto', 'FGType=nukems', content)
+                    # # Write the updated content back to the file
+                    # with open(ini_file, 'w') as f:
+                    #     f.write(updated_content)
+                    
+                    decky.logger.info("Preserving original OptiScaler.ini FGType settings")
+                else:
+                    decky.logger.error(f"OptiScaler.ini not found at {ini_file}")
+            except Exception as e:
+                decky.logger.error(f"Failed to update OptiScaler.ini: {e}")
+                # Continue with the process even if INI update fails
             
             return {
                 "status": "success", 

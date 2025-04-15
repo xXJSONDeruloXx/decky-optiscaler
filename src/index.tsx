@@ -120,12 +120,46 @@ function FGModInstallerSection() {
   const handleInstallClick = async () => {
     try {
       setInstalling(true);
-      const result = await runInstallFGMod();
-      setInstalling(false);
-      setInstallResult(result);
+      
+      // First, install FGMod
+      console.log("Installing FGMod...");
+      const fgmodResult = await runInstallFGMod();
+      
+      // Log but don't update UI yet, as we have more to do
+      console.log("FGMod installation result:", fgmodResult);
+      
+      // If FGMod installation succeeded, download OptiScaler as well
+      if (fgmodResult.status === "success") {
+        console.log("FGMod installed, now downloading OptiScaler...");
+        
+        // Show temporary notification that we're downloading OptiScaler
+        setInstallResult({
+          status: "success",
+          output: "FGMod installed successfully, now downloading OptiScaler..."
+        });
+        
+        // Download OptiScaler
+        const optiResult = await downloadLatestOptiScaler();
+        console.log("OptiScaler download result:", optiResult);
+        
+        // Update UI with combined result
+        setInstallResult({
+          status: "success",
+          output: `FGMod installed. OptiScaler ${optiResult.status === "success" ? "also installed" : "download had issues"}. ${optiResult.version ? `(Version: ${optiResult.version})` : ""}`
+        });
+      } else {
+        // Just show the FGMod result if it failed
+        setInstallResult(fgmodResult);
+      }
     } catch (e) {
       logError('handleInstallClick: ' + String(e));
-      console.error(e)
+      console.error(e);
+      setInstallResult({
+        status: "error",
+        message: String(e)
+      });
+    } finally {
+      setInstalling(false);
     }
   };
 
@@ -133,19 +167,22 @@ function FGModInstallerSection() {
     try {
       setUninstalling(true);
       const result = await runUninstallFGMod();
-      setUninstalling(false);
       setUninstallResult(result);
     } catch (e) {
-      logError('handleUninstallClick' + String(e));
-      console.error(e)
+      logError('handleUninstallClick: ' + String(e));
+      console.error(e);
+      setUninstallResult({
+        status: "error",
+        message: String(e)
+      });
+    } finally {
+      setUninstalling(false);
     }
   };
 
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
-      setDownloadStatus(null);
-      
       console.log("Starting OptiScaler download...");
       
       const result = await downloadLatestOptiScaler();
@@ -389,6 +426,133 @@ function InstalledGamesSection() {
             >
               Unpatch
             </ButtonItem>
+          </PanelSectionRow>
+          
+          {/* OptiScaler Patching Options */}
+          <PanelSectionRow>
+            <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
+              OptiScaler Patching Options:
+            </div>
+          </PanelSectionRow>
+          
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={async () => {
+                try {
+                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=dxgi.dll ~/opti/opti.sh %COMMAND%');
+                  setResult(`OptiScaler (dxgi.dll) set for ${selectedGame.name}`);
+                } catch (error) {
+                  logError('handleOptiPatchClick: ' + String(error));
+                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+              }}
+            >
+              Opti-Patch (dxgi.dll)
+            </ButtonItem>
+            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
+              Default and most broadly compatible option.
+            </div>
+          </PanelSectionRow>
+          
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={async () => {
+                try {
+                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=winmm.dll ~/opti/opti.sh %COMMAND%');
+                  setResult(`OptiScaler (winmm.dll) set for ${selectedGame.name}`);
+                } catch (error) {
+                  logError('handleOptiPatchClick: ' + String(error));
+                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+              }}
+            >
+              Opti-Patch (winmm.dll)
+            </ButtonItem>
+            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
+              Often works better with Unity/Unreal games when dxgi fails.
+            </div>
+          </PanelSectionRow>
+          
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={async () => {
+                try {
+                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=dbghelp.dll ~/opti/opti.sh %COMMAND%');
+                  setResult(`OptiScaler (dbghelp.dll) set for ${selectedGame.name}`);
+                } catch (error) {
+                  logError('handleOptiPatchClick: ' + String(error));
+                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+              }}
+            >
+              Opti-Patch (dbghelp.dll)
+            </ButtonItem>
+            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
+              Alternative for older DX9/DX11 games.
+            </div>
+          </PanelSectionRow>
+          
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={async () => {
+                try {
+                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=version.dll ~/opti/opti.sh %COMMAND%');
+                  setResult(`OptiScaler (version.dll) set for ${selectedGame.name}`);
+                } catch (error) {
+                  logError('handleOptiPatchClick: ' + String(error));
+                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+              }}
+            >
+              Opti-Patch (version.dll)
+            </ButtonItem>
+            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
+              Used by some older mod loaders and ASI-based tools.
+            </div>
+          </PanelSectionRow>
+          
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={async () => {
+                try {
+                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=wininet.dll ~/opti/opti.sh %COMMAND%');
+                  setResult(`OptiScaler (wininet.dll) set for ${selectedGame.name}`);
+                } catch (error) {
+                  logError('handleOptiPatchClick: ' + String(error));
+                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+              }}
+            >
+              Opti-Patch (wininet.dll)
+            </ButtonItem>
+            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
+              Useful if winmm or version conflict with the game.
+            </div>
+          </PanelSectionRow>
+          
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={async () => {
+                try {
+                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=winhttp.dll ~/opti/opti.sh %COMMAND%');
+                  setResult(`OptiScaler (winhttp.dll) set for ${selectedGame.name}`);
+                } catch (error) {
+                  logError('handleOptiPatchClick: ' + String(error));
+                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+              }}
+            >
+              Opti-Patch (winhttp.dll)
+            </ButtonItem>
+            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
+              Another alternative when others inject too early or late.
+            </div>
           </PanelSectionRow>
         </>
       ) : null}

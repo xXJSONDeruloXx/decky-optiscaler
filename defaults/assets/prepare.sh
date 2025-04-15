@@ -27,6 +27,7 @@ set -x  # Enable debugging
   mod_path="$HOME/fgmod"
   bin_path="$(dirname "$(realpath "$0")")/../bin"
   assets_path="$(dirname "$(realpath "$0")")"
+  opti_path="$HOME/opti"
 
   standalone=1
 
@@ -71,16 +72,36 @@ set -x  # Enable debugging
   
   sed -i 's|mod_path="/usr/share/fgmod"|mod_path="'"$mod_path"'"|g' fgmod-uninstaller.sh
 
+  # Setup OptiScaler launcher script
+  echo "Setting up OptiScaler launcher script"
+  mkdir -p "$opti_path"
+  
+  if [ -f "$assets_path/opti.sh" ]; then
+    cp "$assets_path/opti.sh" "$opti_path/opti.sh.tmp"
+    if [ -f "$opti_path/opti.sh.tmp" ]; then
+      mv "$opti_path/opti.sh.tmp" "$opti_path/opti.sh"
+      chmod +x "$opti_path/opti.sh" || { echo "Failed to make opti.sh executable"; }
+      echo "Successfully installed OptiScaler launcher at $opti_path/opti.sh"
+    else
+      echo "Failed to create temporary OptiScaler launcher file"
+    fi
+  else
+    echo "Warning: opti.sh not found in assets directory"
+  fi
+
   echo ""
 
   # Flatpak compatibility
   if flatpak list | grep "com.valvesoftware.Steam" 1>/dev/null; then
       echo "Flatpak version of Steam detected, adding access to fgmod's folder"
+      echo "Adding access to OptiScaler folder as well"
       echo "Please restart Steam!"
       flatpak override --user --filesystem="$mod_path" com.valvesoftware.Steam
+      flatpak override --user --filesystem="$opti_path" com.valvesoftware.Steam
   fi
 
   echo "For Steam, add this to the launch options: \"$mod_path/fgmod\" %COMMAND%"
-  echo "For Heroic, add this as a new wrapper: \"$mod_path/fgmod\""
+  echo "For OptiScaler, add this to the launch options: \"$opti_path/opti.sh\" %COMMAND%"
+  echo "For Heroic, add these as new wrappers: \"$mod_path/fgmod\" or \"$opti_path/opti.sh\""
   echo "All done!"
 } 2>&1 | tee -a /tmp/prepare.log
