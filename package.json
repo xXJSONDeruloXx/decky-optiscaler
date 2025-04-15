@@ -123,11 +123,6 @@
         "sha256hash": "672d65665cddb21a10b525daa987179871ddf97f328861a3e4b6a76671457e28"
     },
     {
-        "name": "fgmod",
-        "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/binaries-DLSS-Enabler-3.02-Stable/fgmod",
-        "sha256hash": "70bcf240e160cf5f75f861e40032cbc788889fd81bf3ca836466b8be1e561d58"
-    },
-    {
         "name": "libxess.dll",
         "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/binaries-DLSS-Enabler-3.02-Stable/libxess.dll",
         "sha256hash": "703ab8debc05ae209f6e4622cc06edf9f95a241f7ce68ee75c8955564d36ad70"
@@ -146,11 +141,6 @@
         "name": "nvngx.ini",
         "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/binaries-DLSS-Enabler-3.02-Stable/nvngx.ini",
         "sha256hash": "3e083428c87054235aedb61cb4cc5afa1716a540146b978ddcd3ce2d590292a8"
-    },
-    {
-      "name": "fgmod-uninstaller.sh",
-      "url": "https://github.com/xXJSONDeruloXx/Decky-Framegen/releases/download/binaries-DLSS-Enabler-3.02-Stable/fgmod-uninstaller.sh",
-      "sha256hash": "6a61ee21f587ad1976522a36adfa610140f2b486fbc812ca334b55ce50fcd395"
     }
   ]
 }
