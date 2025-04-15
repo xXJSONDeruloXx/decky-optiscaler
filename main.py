@@ -12,7 +12,7 @@ class Plugin:
         decky.logger.info("Framegen plugin unloaded.")
 
     async def download_optiscaler_nightly(self) -> dict:
-        """Download the latest OptiScaler nightly build from GitHub using wget."""
+        """Download the latest OptiScaler nightly build from GitHub using wget and extract it."""
         try:
             # Set up constants for clarity
             owner = 'cdozdil'
@@ -77,10 +77,43 @@ class Plugin:
             )
             
             decky.logger.info(f"Download complete: {output_file}")
+            
+            # Step 4: Extract the 7z file
+            extract_path = download_path / asset_name.replace('.7z', '')
+            extract_path.mkdir(exist_ok=True)
+            
+            decky.logger.info(f"Extracting {output_file} to {extract_path}")
+            
+            extract_cmd = [
+                "7z",
+                "x",
+                "-y",
+                "-o" + str(extract_path),
+                str(output_file)
+            ]
+            
+            extract_result = subprocess.run(
+                extract_cmd,
+                capture_output=True,
+                text=True,
+                check=False  # Don't raise exception if extraction fails
+            )
+            
+            if extract_result.returncode != 0:
+                decky.logger.error(f"Extraction failed: {extract_result.stderr}")
+                return {
+                    "status": "partial_success", 
+                    "message": f"Downloaded {asset_name} to ~/Downloads but extraction failed", 
+                    "file_path": str(output_file),
+                    "extract_error": extract_result.stderr
+                }
+            
+            decky.logger.info(f"Extraction complete to {extract_path}")
             return {
                 "status": "success", 
-                "message": f"Downloaded {asset_name} to ~/Downloads", 
-                "file_path": str(output_file)
+                "message": f"Downloaded and extracted {asset_name} to ~/Downloads/{extract_path.name}", 
+                "file_path": str(output_file),
+                "extract_path": str(extract_path)
             }
             
         except subprocess.CalledProcessError as e:
