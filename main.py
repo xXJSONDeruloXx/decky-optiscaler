@@ -2,6 +2,7 @@ import decky  # Old-style Decky import
 import os
 import subprocess
 import json
+import shutil
 from pathlib import Path
 
 class Plugin:
@@ -169,14 +170,67 @@ class Plugin:
                     for rename_file in rename_files:
                         dest_file = renames_dir / rename_file
                         # Use shutil.copy2 to preserve metadata
-                        import shutil
                         shutil.copy2(source_file, dest_file)
                         decky.logger.info(f"Created renamed copy: {dest_file}")
                     
                     decky.logger.info(f"Created all renamed copies in {renames_dir}")
+
+                    # Download nvngx_dlss.dll from GitHub and save as nvngx.dll in renames directory
+                    try:
+                        nvngx_url = "https://raw.githubusercontent.com/NVIDIAGameWorks/Streamline/main/bin/x64/nvngx_dlss.dll"
+                        nvngx_dest = renames_dir / "nvngx.dll"
+                        
+                        decky.logger.info(f"Downloading nvngx_dlss.dll from GitHub to {nvngx_dest}")
+                        
+                        nvngx_cmd = [
+                            "wget",
+                            "-O", str(nvngx_dest),
+                            nvngx_url
+                        ]
+                        
+                        nvngx_result = subprocess.run(
+                            nvngx_cmd,
+                            capture_output=True,
+                            text=True,
+                            check=False  # Don't raise exception if download fails
+                        )
+                        
+                        if nvngx_result.returncode != 0:
+                            decky.logger.error(f"Failed to download nvngx_dlss.dll: {nvngx_result.stderr}")
+                        else:
+                            decky.logger.info(f"Successfully downloaded nvngx_dlss.dll as {nvngx_dest}")
+                    except Exception as e:
+                        decky.logger.error(f"Failed to download nvngx_dlss.dll: {e}")
+                        # Continue with the process even if this download fails
+
             except Exception as e:
                 decky.logger.error(f"Failed to create renamed copies: {e}")
                 # Continue with the process even if renaming fails
+            
+            # Step 8: Update OptiScaler.ini to set FGType=nukems
+            try:
+                ini_file = extract_path / "OptiScaler.ini"
+                if ini_file.exists():
+                    decky.logger.info(f"Updating {ini_file} to set FGType=nukems")
+                    
+                    # Read the file content
+                    with open(ini_file, 'r') as f:
+                        content = f.read()
+                    
+                    # Replace FGType=auto with FGType=nukems using regex for flexibility
+                    import re
+                    updated_content = re.sub(r'FGType\s*=\s*auto', 'FGType=nukems', content)
+                    
+                    # Write the updated content back to the file
+                    with open(ini_file, 'w') as f:
+                        f.write(updated_content)
+                    
+                    decky.logger.info("Successfully updated OptiScaler.ini to use nukems for FGType")
+                else:
+                    decky.logger.error(f"OptiScaler.ini not found at {ini_file}")
+            except Exception as e:
+                decky.logger.error(f"Failed to update OptiScaler.ini: {e}")
+                # Continue with the process even if INI update fails
             
             return {
                 "status": "success", 
