@@ -141,6 +141,43 @@ class Plugin:
                     "extract_path": str(extract_path)
                 }
             
+            # Step 7: Create renamed copies of OptiScaler.dll in a renames directory
+            try:
+                # Create the renames directory
+                renames_dir = extract_path / "renames"
+                renames_dir.mkdir(exist_ok=True)
+                
+                # Source file
+                source_file = extract_path / "OptiScaler.dll"
+                
+                # List of names to create
+                rename_files = [
+                    "dxgi.dll",
+                    "winmm.dll",
+                    "dbghelp.dll",
+                    "version.dll",
+                    "wininet.dll",
+                    "winhttp.dll",
+                    "OptiScaler.asi"
+                ]
+                
+                # Check if source file exists
+                if not source_file.exists():
+                    decky.logger.error(f"Source file {source_file} does not exist, can't create renames")
+                else:
+                    # Create each renamed copy
+                    for rename_file in rename_files:
+                        dest_file = renames_dir / rename_file
+                        # Use shutil.copy2 to preserve metadata
+                        import shutil
+                        shutil.copy2(source_file, dest_file)
+                        decky.logger.info(f"Created renamed copy: {dest_file}")
+                    
+                    decky.logger.info(f"Created all renamed copies in {renames_dir}")
+            except Exception as e:
+                decky.logger.error(f"Failed to create renamed copies: {e}")
+                # Continue with the process even if renaming fails
+            
             return {
                 "status": "success", 
                 "message": f"Downloaded and extracted OptiScaler {version} to ~/opti", 
