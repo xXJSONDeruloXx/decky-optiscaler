@@ -4,9 +4,8 @@ This plugin automates the updating, installing, and configuring of Optiscaler vi
 
 ## Features
 
-- Install and uninstall Framegen mod
-- Check if Framegen mod path exists
-- Add launch option to the running game to enable the patch
+- Install and uninstall Optiscaler mod and supporting DLSS Enabler, FakeNVAPI, Nukems Mod etc.
+- Add launch option either manually or via game drop down to run the installer script when game is launched
 
 ## Credits
 

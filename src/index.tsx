@@ -25,6 +25,11 @@ const checkFGModPath = callable<
   { exists: boolean }
 >("check_fgmod_path");
 
+const checkOptiScalerPath = callable<
+  [],
+  { exists: boolean; version: string }
+>("check_optiscaler_path");
+
 const listInstalledGames = callable<
   [],
   { status: string; games: { appid: string; name: string }[] }
@@ -34,7 +39,13 @@ const logError = callable<[string], void>("log_error");
 
 const downloadLatestOptiScaler = callable<
   [],
-  { status: string; message: string; file_path?: string }
+  { 
+    status: string; 
+    message: string; 
+    file_path?: string; 
+    extract_path?: string;
+    version?: string;
+  }
 >("download_optiscaler_nightly");
 
 function FGModInstallerSection() {
@@ -56,12 +67,18 @@ function FGModInstallerSection() {
     message: string;
   } | null>(null);
   const [pathExists, setPathExists] = useState<boolean | null>(null);
+  const [optiScalerExists, setOptiScalerExists] = useState<boolean | null>(null);
+  const [optiScalerVersion, setOptiScalerVersion] = useState<string>("");
 
   useEffect(() => {
     const checkPath = async () => {
       try {
-        const result = await checkFGModPath();
-        setPathExists(result.exists);
+        const fgmodResult = await checkFGModPath();
+        setPathExists(fgmodResult.exists);
+        
+        const optiResult = await checkOptiScalerPath();
+        setOptiScalerExists(optiResult.exists);
+        setOptiScalerVersion(optiResult.version);
       } catch (e) {
         logError('useEffect -> checkPath' + String(e));
         console.error(e);
@@ -97,6 +114,7 @@ function FGModInstallerSection() {
       const timer = setTimeout(() => setDownloadStatus(null), 5000);
       return () => clearTimeout(timer);
     }
+    return undefined; // Explicitly return undefined for all code paths
   }, [downloadStatus]);
 
   const handleInstallClick = async () => {
@@ -135,8 +153,8 @@ function FGModInstallerSection() {
       console.log("Download complete:", result);
       
       setDownloadStatus({
-        success: result.status === "success",
-        message: result.message
+        success: result.status === "success" || result.status === "partial_success",
+        message: result.message + (result.version ? ` (${result.version})` : "")
       });
     } catch (error) {
       console.error("Download failed:", error);
@@ -150,9 +168,7 @@ function FGModInstallerSection() {
     }
   };
 
-  const handleOpenGoogle = () => {
-    window.open("https://www.google.com", "_blank");
-  };
+
 
   return (
     <PanelSection>
@@ -163,32 +179,39 @@ function FGModInstallerSection() {
           </div>
         </PanelSectionRow>
       ) : null}
+      
+      {/* Add OptiScaler status indicator */}
+      {optiScalerExists !== null ? (
+        <PanelSectionRow>
+          <div style={{ color: optiScalerExists ? "green" : "red" }}>
+            {optiScalerExists 
+              ? `Current OptiScaler Version: ${optiScalerVersion}` 
+              : "OptiScaler Not Installed"}
+          </div>
+        </PanelSectionRow>
+      ) : null}
+      
       {pathExists === false ? (
         <PanelSectionRow>
           <ButtonItem layout="below" onClick={handleInstallClick} disabled={installing}>
-            {installing ? "Installing..." : "Install FG Mod"}
+            {installing ? "Installing..." : "Install Mod Files"}
           </ButtonItem>
         </PanelSectionRow>
       ) : null}
       {pathExists === true ? (
         <PanelSectionRow>
           <ButtonItem layout="below" onClick={handleUninstallClick} disabled={uninstalling}>
-            {uninstalling ? "Uninstalling..." : "Uninstall FG Mod"}
+            {uninstalling ? "Uninstalling..." : "Uninstall Mod Files"}
           </ButtonItem>
         </PanelSectionRow>
-      ) : null}
-      <PanelSectionRow>
-        <ButtonItem layout="below" onClick={handleOpenGoogle}>
-          Open Google
-        </ButtonItem>
-      </PanelSectionRow>
+      ) : null}      
       <PanelSectionRow>
         <ButtonItem 
           layout="below" 
           onClick={handleDownload} 
           disabled={isDownloading}
         >
-          {isDownloading ? "Downloading..." : "Download OptiScaler Nightly"}
+          {isDownloading ? "Downloading..." : "Update OptiScaler Nightly"}
         </ButtonItem>
         
         {downloadStatus && (

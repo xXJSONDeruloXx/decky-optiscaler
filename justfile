@@ -14,6 +14,6 @@ test:
     rm -rf out
     mkdir -p out
     .vscode/build.sh
-    scp ~/Developer/decky-optiscaler/out/decky-optiscaler.zip deck@192.168.0.6:~/Desktop
-    ssh-deck
-    journalctl --follow
+    scp ~/Developer/decky-optiscaler/out/decky-optiscaler.zip deck@192.168.0.6:~
+    ssh deck@192.168.0.6 "journalctl --follow"
+    
