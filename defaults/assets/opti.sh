@@ -4,7 +4,7 @@ set -x
 exec > >(tee -i /tmp/opti-install.log) 2>&1
 
 error_exit() {
-  echo "$1"
+  echo "❌ $1"
   if [[ -n $STEAM_ZENITY ]]; then
     $STEAM_ZENITY --error --text "$1"
   else 
@@ -12,30 +12,6 @@ error_exit() {
   fi
   logger -t optiscaler "❌ ERROR: $1"
   exit 1
-}
-
-safe_copy() {
-  local src="$1"
-  local dest="$2"
-  local opts="${3:-}"
-  cp $opts "$src" "$dest" 2>/dev/null
-
-  if [[ $? -ne 0 && -d "$(dirname "$dest")" ]]; then
-    echo "Limited permissions detected, trying alternative methods..."
-
-    if command -v bwrap >/dev/null 2>&1; then
-      echo "Using bubblewrap to copy files..."
-      bwrap --dev-bind / / cp $opts "$src" "$dest" 2>/dev/null
-    fi
-
-    if [[ $? -ne 0 && "$(whoami)" == "deck" && -x "$(command -v sudo)" ]]; then
-      echo "Using sudo to copy files..."
-      sudo cp $opts "$src" "$dest"
-    fi
-  fi
-
-  [[ -e "$dest" ]] || return 1
-  return 0
 }
 
 # === CONFIG ===
@@ -77,6 +53,7 @@ if [[ -d "$exe_folder_path/Engine" ]]; then
 fi
 
 [[ ! -d "$exe_folder_path" ]] && error_exit "❌ Could not resolve game directory!"
+[[ ! -w "$exe_folder_path" ]] && error_exit "🛑 No write permission to the game folder!"
 
 logger -t optiscaler "🟢 Target directory: $exe_folder_path"
 logger -t optiscaler "🧩 Using DLL name: $dll_name"
@@ -85,35 +62,37 @@ logger -t optiscaler "🧩 Using DLL name: $dll_name"
 rm -f "$exe_folder_path"/{dxgi.dll,winmm.dll,nvngx.dll,_nvngx.dll,nvngx-wrapper.dll,dlss-enabler.dll,OptiScaler.dll}
 
 # === Optional: Backup Original DLLs ===
-for f in dxgi.dll d3dcompiler_47.dll nvapi64.dll; do
-  [[ -f "$exe_folder_path/$f" ]] && mv -n "$exe_folder_path/$f" "$exe_folder_path/$f.bak"
+original_dlls=("d3dcompiler_47.dll" "amd_fidelityfx_dx12.dll" "amd_fidelityfx_vk.dll" "nvapi64.dll")
+for dll in "${original_dlls[@]}"; do
+  [[ -f "$exe_folder_path/$dll" && ! -f "$exe_folder_path/$dll.b" ]] && mv -f "$exe_folder_path/$dll" "$exe_folder_path/$dll.b"
 done
 
 # === Core Install ===
 if [[ -f "$optipath/renames/$dll_name" ]]; then
   echo "✅ Using pre-renamed $dll_name"
-  safe_copy "$optipath/renames/$dll_name" "$exe_folder_path/$dll_name" || error_exit "Failed to copy $dll_name"
+  cp "$optipath/renames/$dll_name" "$exe_folder_path/$dll_name" || error_exit "❌ Failed to copy $dll_name"
 else
   echo "⚠️ Pre-renamed $dll_name not found, falling back to OptiScaler.dll"
-  safe_copy "$optipath/OptiScaler.dll" "$exe_folder_path/$dll_name" || error_exit "Failed to copy OptiScaler.dll as $dll_name"
+  cp "$optipath/OptiScaler.dll" "$exe_folder_path/$dll_name" || error_exit "❌ Failed to copy OptiScaler.dll as $dll_name"
 fi
 
-safe_copy "$optipath/OptiScaler.ini" "$exe_folder_path/OptiScaler.ini" || error_exit "Failed to copy OptiScaler.ini"
+cp "$optipath/OptiScaler.ini" "$exe_folder_path/OptiScaler.ini" || error_exit "❌ Failed to copy OptiScaler.ini"
 
 # === Supporting Libraries ===
-safe_copy "$optipath/libxess.dll" "$exe_folder_path/" || true
-safe_copy "$optipath/amd_fidelityfx_dx12.dll" "$exe_folder_path/" || true
-safe_copy "$optipath/amd_fidelityfx_vk.dll" "$exe_folder_path/" || true
-safe_copy "$optipath/renames/nvngx.dll" "$exe_folder_path/" || true
+cp -f "$optipath/libxess.dll" "$exe_folder_path/" || true
+cp -f "$optipath/amd_fidelityfx_dx12.dll" "$exe_folder_path/" || true
+cp -f "$optipath/amd_fidelityfx_vk.dll" "$exe_folder_path/" || true
+cp -f "$optipath/renames/nvngx.dll" "$exe_folder_path/" || true
 
 # === Nukem FG Mod Files ===
-safe_copy "$fgmodpath/dlssg_to_fsr3_amd_is_better.dll" "$exe_folder_path/" || true
-safe_copy "$fgmodpath/dlssg_to_fsr3.ini" "$exe_folder_path/" || true
-safe_copy "$fgmodpath/nvapi64.dll" "$exe_folder_path/" || true
-safe_copy "$fgmodpath/fakenvapi.ini" "$exe_folder_path/" || true
+cp -f "$fgmodpath/dlssg_to_fsr3_amd_is_better.dll" "$exe_folder_path/" || true
+cp -f "$fgmodpath/dlssg_to_fsr3.ini" "$exe_folder_path/" || true
+cp -f "$fgmodpath/nvapi64.dll" "$exe_folder_path/" || true
+cp -f "$fgmodpath/fakenvapi.ini" "$exe_folder_path/" || true
 
-# === Optional Helpers ===
-safe_copy "$fgmodpath/dxvk.conf" "$exe_folder_path/" "-n" || true
+# === Optional Config Files ===
+cp -n "$fgmodpath/dxvk.conf" "$exe_folder_path/" || true
+# cp -n "$fgmodpath/nvngx.ini" "$exe_folder_path/" || true
 
 logger -t optiscaler "✅ OptiScaler installed in: $exe_folder_path with DLL: $dll_name"
 echo "✅ OptiScaler installed in: $exe_folder_path with DLL: $dll_name"
@@ -123,15 +102,17 @@ if [[ $# -gt 1 ]]; then
   echo "🚀 Launching game with args: $@"
   logger -t optiscaler "🚀 Launching: $@"
 
-  # Set DLL override
   dll_override="${dll_name%.dll}"
   if [[ "$WINEDLLOVERRIDES" != *"$dll_override=n,b"* ]]; then
     export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:+$WINEDLLOVERRIDES,}$dll_override=n,b"
   fi
   logger -t optiscaler "🔧 DLL override: $dll_override=n,b"
 
-  # Explicitly disable SteamDeck environment (some overlays/launchers check this)
   export SteamDeck=0
 
   "$@"
+else
+  echo "📝 Standalone installation complete."
+  echo "📁 Final game path: $exe_folder_path"
+  logger -t optiscaler "📁 Final game path: $exe_folder_path"
 fi
