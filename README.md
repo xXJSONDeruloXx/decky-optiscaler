@@ -1,6 +1,19 @@
 # Decky Optiscaler Plugin
 
-This plugin automates the updating, installing, and configuring of Optiscaler via game mode.
+This plugin automates the updating, installing, and configuring of Optiscaler via game mode. The goal is to enable all capabilities of Optiscaler fully gamepad driven.
+
+<img width="681" alt="image" src="https://github.com/user-attachments/assets/99e1f9d7-ee82-465e-871d-b87297d02f02" />
+
+<img width="680" alt="image" src="https://github.com/user-attachments/assets/b0e08a8f-3581-47d5-b563-49ad67e93577" />
+
+<img width="681" alt="image" src="https://github.com/user-attachments/assets/9fbb8c1c-03f0-4e89-a59b-5c90a100d341" />
+
+<img width="676" alt="image" src="https://github.com/user-attachments/assets/0057d837-020f-4486-a76f-cebe59e8e3c1" />
+
+<img width="678" alt="image" src="https://github.com/user-attachments/assets/703ac264-2f24-4b17-983c-6eb66aadbd3a" />
+
+<img width="677" alt="image" src="https://github.com/user-attachments/assets/839dd3b4-4435-4df0-aee6-800273ca17b8" />
+
 
 ## Features
 
