@@ -1,6 +1,6 @@
 {
   "name": "decky-optiscaler",
-  "version": "0.9.1",
+  "version": "0.2.0",
   "description": "plugin to download, install, and configure Optiscaler within gamemode.",
   "type": "module",
   "scripts": {
