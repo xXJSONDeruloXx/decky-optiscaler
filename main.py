@@ -836,3 +836,137 @@ class Plugin:
                 "status": "error",
                 "message": str(e)
             }
+
+    async def check_for_plugin_update(self) -> dict:
+        """Check for plugin updates by comparing local version with latest GitHub release."""
+        try:
+            # Get the current plugin version from package.json
+            package_json_path = Path(decky.DECKY_PLUGIN_DIR) / "package.json"
+            if not package_json_path.exists():
+                return {
+                    "status": "error",
+                    "message": "Could not find package.json to determine current version"
+                }
+            
+            with open(package_json_path, 'r') as f:
+                package_data = json.load(f)
+            
+            current_version = package_data.get('version', '0.0.0')
+            decky.logger.info(f"Current plugin version: {current_version}")
+            
+            # Prepare to fetch latest release info from GitHub
+            owner = 'xXJSONDeruloXx'
+            repo = 'decky-optiscaler'
+            release_url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+            
+            # Create a temporary file for the response
+            download_path = Path(decky.HOME) / "Downloads"
+            download_path.mkdir(exist_ok=True)
+            release_info_file = download_path / "decky_optiscaler_release_info.json"
+            
+            # Use wget to fetch the release info
+            wget_api_cmd = [
+                "wget",
+                "-O", str(release_info_file),
+                release_url
+            ]
+            
+            decky.logger.info(f"Fetching release info from {release_url}")
+            subprocess.run(
+                wget_api_cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            # Parse the JSON response
+            with open(release_info_file, 'r') as f:
+                release_data = json.load(f)
+            
+            # Clean up the temporary file
+            release_info_file.unlink(missing_ok=True)
+            
+            # Extract latest version and release notes
+            latest_version = release_data.get('tag_name', 'v0.0.0')
+            if latest_version.startswith('v'):
+                latest_version = latest_version[1:]  # Remove the 'v' prefix
+            
+            release_notes = release_data.get('body', 'No release notes available')
+            release_date = release_data.get('published_at', '').split('T')[0]  # Just get the date part
+            
+            # Find the download URL for the plugin zip
+            assets = release_data.get('assets', [])
+            zip_asset = next((a for a in assets if a['name'] == 'decky-optiscaler.zip'), None)
+            
+            if not zip_asset:
+                return {
+                    "status": "error",
+                    "message": "No plugin zip file found in latest release"
+                }
+            
+            download_url = zip_asset['browser_download_url']
+            
+            # Compare versions
+            from packaging import version
+            has_update = version.parse(latest_version) > version.parse(current_version)
+            
+            return {
+                "status": "success",
+                "current_version": current_version,
+                "latest_version": latest_version,
+                "has_update": has_update,
+                "release_notes": release_notes,
+                "release_date": release_date,
+                "download_url": download_url
+            }
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"wget failed: {e.stderr}"
+            decky.logger.error(error_msg)
+            return {"status": "error", "message": error_msg}
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse GitHub API response: {str(e)}"
+            decky.logger.error(error_msg)
+            return {"status": "error", "message": error_msg}
+        except Exception as e:
+            error_msg = str(e)
+            decky.logger.error(f"Update check failed: {error_msg}")
+            return {"status": "error", "message": f"Update check failed: {error_msg}"}
+            
+    async def download_plugin_update(self, url: str) -> dict:
+        """Download the latest plugin zip to the user's Downloads directory."""
+        try:
+            # Prepare the download path
+            download_path = Path(decky.HOME) / "Downloads"
+            download_path.mkdir(exist_ok=True)
+            output_file = download_path / "decky-optiscaler.zip"
+            
+            # Use wget to download the file
+            wget_cmd = [
+                "wget",
+                "-O", str(output_file),
+                url
+            ]
+            
+            decky.logger.info(f"Downloading plugin update from {url} to {output_file}")
+            subprocess.run(
+                wget_cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            return {
+                "status": "success",
+                "message": "Plugin update downloaded successfully",
+                "file_path": str(output_file)
+            }
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"wget failed: {e.stderr}"
+            decky.logger.error(error_msg)
+            return {"status": "error", "message": error_msg}
+        except Exception as e:
+            error_msg = str(e)
+            decky.logger.error(f"Download failed: {error_msg}")
+            return {"status": "error", "message": f"Download failed: {error_msg}"}
