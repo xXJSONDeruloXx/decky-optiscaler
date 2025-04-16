@@ -624,6 +624,46 @@ function InstalledGamesSection() {
             </ButtonItem>
           </PanelSectionRow>
           
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={async () => {
+                if (!selectedGame) return;
+                
+                // Show confirmation modal with strong warning
+                showModal(
+                  <ConfirmModal 
+                    strTitle={`NUCLEAR UNPATCH - ${selectedGame.name}`}
+                    strDescription={
+                      "⚠️ WARNING: This will forcefully remove ALL DLL files and mod-related files from the game directory. You MUST verify game files in Steam afterward to restore the game to working condition. Continue?"
+                    }
+                    strOKButtonText="Yes, do nuclear cleanup"
+                    strCancelButtonText="Cancel"
+                    onOK={async () => {
+                      try {
+                        await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, '~/opti/uninstall-nuclear.sh %COMMAND%');
+                        setResult(`Nuclear uninstaller will run on next launch of ${selectedGame.name}. After running, you MUST verify game files in Steam.`);
+                      } catch (error) {
+                        logError('handleNuclearUnpatchClick: ' + String(error));
+                        setResult(`Error setting nuclear uninstall: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                      }
+                    }}
+                  />
+                );
+              }}
+              style={{ 
+                backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                paddingTop: '8px',
+                paddingBottom: '8px'
+              }}
+            >
+              Nuclear Unpatch
+            </ButtonItem>
+            <div style={{ fontSize: '0.8em', marginTop: '4px', color: 'rgba(255, 100, 100, 0.8)' }}>
+              Emergency option: Forcibly removes all DLLs (requires game verification)
+            </div>
+          </PanelSectionRow>
+          
           {/* OptiScaler Patching Options */}
           <PanelSectionRow>
             <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>

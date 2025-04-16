@@ -88,6 +88,20 @@ set -x  # Enable debugging
   else
     echo "Warning: opti.sh not found in assets directory"
   fi
+  
+  # Copy the nuclear uninstaller script and make it executable
+  if [ -f "$assets_path/uninstall-nuclear.sh" ]; then
+    cp "$assets_path/uninstall-nuclear.sh" "$opti_path/uninstall-nuclear.sh.tmp"
+    if [ -f "$opti_path/uninstall-nuclear.sh.tmp" ]; then
+      mv "$opti_path/uninstall-nuclear.sh.tmp" "$opti_path/uninstall-nuclear.sh"
+      chmod +x "$opti_path/uninstall-nuclear.sh" || { echo "Failed to make uninstall-nuclear.sh executable"; }
+      echo "Successfully installed Nuclear Uninstaller at $opti_path/uninstall-nuclear.sh"
+    else
+      echo "Failed to create temporary Nuclear Uninstaller file"
+    fi
+  else
+    echo "Warning: uninstall-nuclear.sh not found in assets directory"
+  fi
 
   echo ""
 
