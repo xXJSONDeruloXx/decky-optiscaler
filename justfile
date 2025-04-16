@@ -17,3 +17,9 @@ test:
     scp ~/Developer/decky-optiscaler/out/decky-optiscaler.zip deck@192.168.0.6:~
     ssh deck@192.168.0.6 "journalctl --follow"
     
+# build without sending to deck
+build:
+    rm -rf node_modules
+    rm -rf out
+    mkdir -p out
+    .vscode/build.sh
