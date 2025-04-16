@@ -3,6 +3,7 @@ import os
 import subprocess
 import json
 import shutil
+import re
 from pathlib import Path
 
 class Plugin:
@@ -478,3 +479,360 @@ class Plugin:
         except Exception as e:
             decky.logger.error(f"Error setting FGType: {e}")
             return {"status": "error", "message": str(e)}
+
+    async def get_optiscaler_settings(self, section: str = None) -> dict:
+        """
+        Get current settings from the OptiScaler.ini file.
+        
+        Args:
+            section: Optional section name to filter settings
+            
+        Returns:
+            Dictionary with settings
+        """
+        try:
+            ini_path = Path(decky.HOME) / "opti" / "OptiScaler.ini"
+            
+            if not ini_path.exists():
+                return {
+                    "status": "error",
+                    "message": "OptiScaler.ini not found",
+                    "settings": {}
+                }
+            
+            settings = {}
+            current_section = None
+            
+            with open(ini_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    
+                    # Skip comments and empty lines
+                    if not line or line.startswith(';'):
+                        continue
+                    
+                    # Check for section headers
+                    if line.startswith('[') and line.endswith(']'):
+                        current_section = line[1:-1]
+                        if current_section not in settings:
+                            settings[current_section] = {}
+                        continue
+                    
+                    # Process key-value pairs
+                    if '=' in line and current_section:
+                        key, value = line.split('=', 1)
+                        settings[current_section][key.strip()] = value.strip()
+            
+            # If a specific section was requested
+            if section:
+                if section in settings:
+                    return {
+                        "status": "success",
+                        "settings": settings[section]
+                    }
+                else:
+                    return {
+                        "status": "error",
+                        "message": f"Section {section} not found",
+                        "settings": {}
+                    }
+            
+            return {
+                "status": "success",
+                "settings": settings
+            }
+            
+        except Exception as e:
+            decky.logger.error(f"Error getting OptiScaler settings: {str(e)}")
+            return {
+                "status": "error",
+                "message": str(e),
+                "settings": {}
+            }
+
+    async def set_optiscaler_setting(self, section: str, key: str, value: str) -> dict:
+        """
+        Set a specific setting in the OptiScaler.ini file.
+        
+        Args:
+            section: Section name in the INI file
+            key: Setting key
+            value: New value for the setting
+            
+        Returns:
+            Dictionary with status and message
+        """
+        try:
+            ini_path = Path(decky.HOME) / "opti" / "OptiScaler.ini"
+            
+            if not ini_path.exists():
+                return {
+                    "status": "error",
+                    "message": "OptiScaler.ini not found"
+                }
+            
+            # Read the entire file
+            with open(ini_path, 'r') as f:
+                content = f.read()
+            
+            # Create a pattern that looks for the key in the specific section
+            section_pattern = f"\\[{re.escape(section)}\\](.*?)(?=\\[|$)"
+            section_match = re.search(section_pattern, content, re.DOTALL)
+            
+            if not section_match:
+                return {
+                    "status": "error",
+                    "message": f"Section [{section}] not found"
+                }
+            
+            section_content = section_match.group(1)
+            key_pattern = f"^{re.escape(key)}\\s*=.*$"
+            
+            # Check if the key exists in the section
+            key_match = re.search(key_pattern, section_content, re.MULTILINE)
+            
+            if not key_match:
+                return {
+                    "status": "error",
+                    "message": f"Key {key} not found in section [{section}]"
+                }
+            
+            # Replace the key's value
+            new_line = f"{key}={value}"
+            updated_section = re.sub(key_pattern, new_line, section_content, flags=re.MULTILINE)
+            
+            # Replace the old section with the updated one
+            updated_content = content.replace(section_content, updated_section)
+            
+            # Write the updated content back to the file
+            with open(ini_path, 'w') as f:
+                f.write(updated_content)
+            
+            decky.logger.info(f"Updated OptiScaler.ini: [{section}] {key}={value}")
+            return {
+                "status": "success",
+                "message": f"Setting updated: [{section}] {key}={value}"
+            }
+            
+        except Exception as e:
+            decky.logger.error(f"Error setting OptiScaler setting: {str(e)}")
+            return {
+                "status": "error",
+                "message": str(e)
+            }
+
+    async def set_upscaler_type(self, upscaler_type: str, value: str) -> dict:
+        """
+        Set the upscaler type for a specific API.
+        
+        Args:
+            upscaler_type: 'Dx11Upscaler', 'Dx12Upscaler', or 'VulkanUpscaler'
+            value: The upscaler value to set (e.g., 'auto', 'fsr22', 'xess', etc.)
+            
+        Returns:
+            Dictionary with status and message
+        """
+        valid_types = ["Dx11Upscaler", "Dx12Upscaler", "VulkanUpscaler"]
+        if upscaler_type not in valid_types:
+            return {
+                "status": "error",
+                "message": f"Invalid upscaler type: {upscaler_type}"
+            }
+        
+        return await self.set_optiscaler_setting("Upscalers", upscaler_type, value)
+
+    async def set_optifg_settings(self, settings: dict) -> dict:
+        """
+        Update multiple OptiFG settings at once.
+        
+        Args:
+            settings: Dictionary of settings to update in the [OptiFG] section
+            
+        Returns:
+            Dictionary with status and message
+        """
+        try:
+            results = []
+            section = "OptiFG"
+            
+            for key, value in settings.items():
+                result = await self.set_optiscaler_setting(section, key, str(value))
+                results.append(result)
+            
+            # Check if any errors occurred
+            errors = [r for r in results if r["status"] == "error"]
+            if errors:
+                return {
+                    "status": "partial_success",
+                    "message": f"Updated {len(results) - len(errors)} settings, {len(errors)} failed",
+                    "details": errors
+                }
+            
+            return {
+                "status": "success",
+                "message": f"Updated {len(results)} OptiFG settings"
+            }
+            
+        except Exception as e:
+            decky.logger.error(f"Error setting OptiFG settings: {str(e)}")
+            return {
+                "status": "error",
+                "message": str(e)
+            }
+
+    async def set_framerate_limit(self, limit: str) -> dict:
+        """
+        Set the framerate limit in the OptiScaler.ini.
+        
+        Args:
+            limit: The framerate limit value (e.g., 'auto', '60.0', etc.)
+            
+        Returns:
+            Dictionary with status and message
+        """
+        return await self.set_optiscaler_setting("Framerate", "FramerateLimit", limit)
+        
+    async def set_quality_ratio_override(self, enabled: bool, ratios: dict = None) -> dict:
+        """
+        Set the quality ratio override settings.
+        
+        Args:
+            enabled: Whether to enable quality ratio overrides
+            ratios: Optional dictionary with quality mode ratios
+            
+        Returns:
+            Dictionary with status and message
+        """
+        try:
+            results = []
+            
+            # First, enable/disable the override
+            enabled_result = await self.set_optiscaler_setting(
+                "QualityOverrides", 
+                "QualityRatioOverrideEnabled", 
+                "true" if enabled else "false"
+            )
+            results.append(enabled_result)
+            
+            # If ratios are provided and enabled is True, update each ratio
+            if enabled and ratios:
+                for mode, ratio in ratios.items():
+                    key_name = f"QualityRatio{mode}"
+                    ratio_result = await self.set_optiscaler_setting(
+                        "QualityOverrides", 
+                        key_name, 
+                        str(ratio)
+                    )
+                    results.append(ratio_result)
+            
+            # Check if any errors occurred
+            errors = [r for r in results if r["status"] == "error"]
+            if errors:
+                return {
+                    "status": "partial_success",
+                    "message": f"Updated {len(results) - len(errors)} settings, {len(errors)} failed",
+                    "details": errors
+                }
+            
+            return {
+                "status": "success",
+                "message": f"Updated quality ratio override settings"
+            }
+            
+        except Exception as e:
+            decky.logger.error(f"Error setting quality ratio override: {str(e)}")
+            return {
+                "status": "error",
+                "message": str(e)
+            }
+
+    async def set_menu_settings(self, settings: dict) -> dict:
+        """
+        Update multiple Menu settings at once.
+        
+        Args:
+            settings: Dictionary of settings to update in the [Menu] section
+            
+        Returns:
+            Dictionary with status and message
+        """
+        try:
+            results = []
+            section = "Menu"
+            
+            for key, value in settings.items():
+                result = await self.set_optiscaler_setting(section, key, str(value))
+                results.append(result)
+            
+            # Check if any errors occurred
+            errors = [r for r in results if r["status"] == "error"]
+            if errors:
+                return {
+                    "status": "partial_success",
+                    "message": f"Updated {len(results) - len(errors)} settings, {len(errors)} failed",
+                    "details": errors
+                }
+            
+            return {
+                "status": "success",
+                "message": f"Updated {len(results)} Menu settings"
+            }
+            
+        except Exception as e:
+            decky.logger.error(f"Error setting Menu settings: {str(e)}")
+            return {
+                "status": "error",
+                "message": str(e)
+            }
+
+    async def set_upscale_ratio_override(self, enabled: bool, value: str = None) -> dict:
+        """
+        Set the upscale ratio override settings.
+        
+        Args:
+            enabled: Whether to enable upscale ratio override
+            value: Optional value for the override
+            
+        Returns:
+            Dictionary with status and message
+        """
+        try:
+            results = []
+            
+            # First, enable/disable the override
+            enabled_result = await self.set_optiscaler_setting(
+                "UpscaleRatio", 
+                "UpscaleRatioOverrideEnabled", 
+                "true" if enabled else "false"
+            )
+            results.append(enabled_result)
+            
+            # If value is provided and enabled is True, update the value
+            if enabled and value:
+                value_result = await self.set_optiscaler_setting(
+                    "UpscaleRatio", 
+                    "UpscaleRatioOverrideValue", 
+                    value
+                )
+                results.append(value_result)
+            
+            # Check if any errors occurred
+            errors = [r for r in results if r["status"] == "error"]
+            if errors:
+                return {
+                    "status": "partial_success",
+                    "message": f"Updated {len(results) - len(errors)} settings, {len(errors)} failed",
+                    "details": errors
+                }
+            
+            return {
+                "status": "success",
+                "message": f"Updated upscale ratio override settings"
+            }
+            
+        except Exception as e:
+            decky.logger.error(f"Error setting upscale ratio override: {str(e)}")
+            return {
+                "status": "error",
+                "message": str(e)
+            }
