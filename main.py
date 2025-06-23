@@ -14,23 +14,22 @@ class Plugin:
         decky.logger.info("Framegen plugin unloaded.")
 
     async def download_optiscaler_nightly(self) -> dict:
-        """Download the latest OptiScaler nightly build from GitHub using wget and extract it to ~/opti."""
+        """Download the latest OptiScaler release from GitHub using wget and extract it to ~/opti."""
         try:
             # Set up constants for clarity
             owner = 'cdozdil'
             repo = 'OptiScaler'
-            tag = 'nightly'
             download_path = Path(decky.HOME) / "Downloads"
             download_path.mkdir(exist_ok=True)
             extract_path = Path(decky.HOME) / "opti"
             extract_path.mkdir(exist_ok=True)
             
             # Log the start of the download
-            decky.logger.info("Starting OptiScaler nightly download")
+            decky.logger.info("Starting OptiScaler latest release download")
             
-            # Step 1: Get release info using wget and jq
+            # Step 1: Get release info using wget - use /releases/latest to get the latest release
             release_info_file = download_path / "optiscaler_release_info.json"
-            release_url = f"https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}"
+            release_url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
             
             wget_api_cmd = [
                 "wget",

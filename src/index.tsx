@@ -319,7 +319,7 @@ function FGModInstallerSection() {
           onClick={handleDownload} 
           disabled={isDownloading}
         >
-          {isDownloading ? "Downloading..." : "Update OptiScaler Nightly"}
+          {isDownloading ? "Downloading..." : "Update OptiScaler Latest"}
         </ButtonItem>
         
         {downloadStatus && (
