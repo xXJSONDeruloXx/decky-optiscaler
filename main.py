@@ -171,19 +171,6 @@ class Plugin:
                 decky.logger.error(f"Failed to create version file: {e}")
                 # Continue with the process even if version file creation fails
             
-            # Step 6.1: Create dlssg_to_fsr3.ini file for FG mod compatibility
-            ini_file = extract_path / "dlssg_to_fsr3.ini"
-            try:
-                ini_content = """[General]
-FSR3FrameGeneration=true
-"""
-                with open(ini_file, 'w') as f:
-                    f.write(ini_content)
-                decky.logger.info(f"Created dlssg_to_fsr3.ini file at {ini_file}")
-            except Exception as e:
-                decky.logger.error(f"Failed to create dlssg_to_fsr3.ini: {e}")
-                # Continue with the process even if INI file creation fails
-            
             # Step 7: Remove the .7z file from Downloads
             try:
                 output_file.unlink()
