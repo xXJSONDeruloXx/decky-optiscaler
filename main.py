@@ -14,18 +14,18 @@ class Plugin:
         decky.logger.info("Framegen plugin unloaded.")
 
     async def download_optiscaler_nightly(self) -> dict:
-        """Download the latest OptiScaler release from GitHub using wget and extract it to ~/opti."""
+        """Download the latest OptiScaler bleeding-edge release from GitHub using wget and extract it to ~/opti."""
         try:
-            # Set up constants for clarity
-            owner = 'cdozdil'
-            repo = 'OptiScaler'
+            # Set up constants for clarity - using bleeding-edge repository
+            owner = 'xXJSONDeruloXx'
+            repo = 'OptiScaler-Bleeding-Edge'
             download_path = Path(decky.HOME) / "Downloads"
             download_path.mkdir(exist_ok=True)
             extract_path = Path(decky.HOME) / "opti"
             extract_path.mkdir(exist_ok=True)
             
             # Log the start of the download
-            decky.logger.info("Starting OptiScaler latest release download")
+            decky.logger.info("Starting OptiScaler bleeding-edge release download")
             
             # Step 1: Get release info using wget - use /releases/latest to get the latest release
             release_info_file = download_path / "optiscaler_release_info.json"
@@ -45,27 +45,29 @@ class Plugin:
                 check=True
             )
             
-            # Step 2: Parse the JSON and find the 7z asset
+            # Step 2: Parse the JSON and find the assets we need
             with open(release_info_file, 'r') as f:
                 release_data = json.load(f)
             
             assets = release_data.get('assets', [])
-            asset_data = next((a for a in assets if a['name'].endswith('.7z')), None)
+            
+            # Find the 7z asset for OptiScaler
+            asset_7z = next((a for a in assets if a['name'].endswith('.7z')), None)
+            
+            # Find the individual files we need
+            asset_dlssg = next((a for a in assets if a['name'] == 'dlssg_to_fsr3_amd_is_better.dll'), None)
+            asset_fakenvapi_ini = next((a for a in assets if a['name'] == 'fakenvapi.ini'), None)
+            asset_nvapi64 = next((a for a in assets if a['name'] == 'nvapi64.dll'), None)
             
             # Clean up the temporary file
             release_info_file.unlink(missing_ok=True)
             
-            if not asset_data:
+            if not asset_7z:
                 return {"status": "error", "message": "No 7z file found in release"}
-                
-            # Step 3: Download the file using wget
-            asset_url = asset_data['browser_download_url']
-            asset_name = asset_data['name']
-            output_file = download_path / asset_name
             
-            # Extract version information from filename
-            # Example: OptiScaler_v0.7.7-pre8_20250415.7z -> v0.7.7-pre8_20250415
-            version_match = asset_name.replace('.7z', '')
+            # Extract version information from 7z filename
+            # Example: OptiScaler_v0.7.7-pre12_20250625.7z -> v0.7.7-pre12_20250625
+            version_match = asset_7z['name'].replace('.7z', '')
             if '_v' in version_match:
                 version = 'v' + version_match.split('_v')[1]
             else:
@@ -73,9 +75,13 @@ class Plugin:
             
             decky.logger.info(f"Detected version: {version}")
             
+            # Step 3: Download the 7z file
+            asset_url = asset_7z['browser_download_url']
+            asset_name = asset_7z['name']
+            output_file = download_path / asset_name
+            
             decky.logger.info(f"Downloading {asset_name} to {output_file}")
             
-            # Run wget command to download the actual asset
             wget_cmd = [
                 "wget",
                 "-O", str(output_file),
@@ -120,7 +126,42 @@ class Plugin:
             
             decky.logger.info(f"Extraction complete to {extract_path}")
             
-            # Step 5: Create version.txt file in the extract path
+            # Step 5: Download additional individual files to ~/opti
+            additional_files = [
+                (asset_dlssg, 'dlssg_to_fsr3_amd_is_better.dll'),
+                (asset_fakenvapi_ini, 'fakenvapi.ini'),
+                (asset_nvapi64, 'nvapi64.dll')
+            ]
+            
+            for asset, filename in additional_files:
+                if asset:
+                    try:
+                        file_dest = extract_path / filename
+                        decky.logger.info(f"Downloading {filename} to {file_dest}")
+                        
+                        wget_cmd = [
+                            "wget",
+                            "-O", str(file_dest),
+                            asset['browser_download_url']
+                        ]
+                        
+                        file_result = subprocess.run(
+                            wget_cmd,
+                            capture_output=True,
+                            text=True,
+                            check=False
+                        )
+                        
+                        if file_result.returncode != 0:
+                            decky.logger.error(f"Failed to download {filename}: {file_result.stderr}")
+                        else:
+                            decky.logger.info(f"Successfully downloaded {filename}")
+                    except Exception as e:
+                        decky.logger.error(f"Error downloading {filename}: {e}")
+                else:
+                    decky.logger.warning(f"Asset {filename} not found in release")
+            
+            # Step 6: Create version.txt file in the extract path
             version_file = extract_path / "version.txt"
             try:
                 with open(version_file, 'w') as f:
@@ -130,7 +171,20 @@ class Plugin:
                 decky.logger.error(f"Failed to create version file: {e}")
                 # Continue with the process even if version file creation fails
             
-            # Step 6: Remove the .7z file from Downloads
+            # Step 6.1: Create dlssg_to_fsr3.ini file for FG mod compatibility
+            ini_file = extract_path / "dlssg_to_fsr3.ini"
+            try:
+                ini_content = """[General]
+FSR3FrameGeneration=true
+"""
+                with open(ini_file, 'w') as f:
+                    f.write(ini_content)
+                decky.logger.info(f"Created dlssg_to_fsr3.ini file at {ini_file}")
+            except Exception as e:
+                decky.logger.error(f"Failed to create dlssg_to_fsr3.ini: {e}")
+                # Continue with the process even if INI file creation fails
+            
+            # Step 7: Remove the .7z file from Downloads
             try:
                 output_file.unlink()
                 decky.logger.info(f"Removed downloaded archive: {output_file}")
@@ -142,7 +196,7 @@ class Plugin:
                     "extract_path": str(extract_path)
                 }
             
-            # Step 7: Create renamed copies of OptiScaler.dll in a renames directory
+            # Step 8: Create renamed copies of OptiScaler.dll in a renames directory
             try:
                 # Create the renames directory
                 renames_dir = extract_path / "renames"
@@ -175,58 +229,21 @@ class Plugin:
                     
                     decky.logger.info(f"Created all renamed copies in {renames_dir}")
 
-                    # Download nvngx_dlss.dll from GitHub and save as nvngx.dll in renames directory
-                    try:
-                        nvngx_url = "https://raw.githubusercontent.com/NVIDIAGameWorks/Streamline/main/bin/x64/nvngx_dlss.dll"
-                        nvngx_dest = renames_dir / "nvngx.dll"
-                        
-                        decky.logger.info(f"Downloading nvngx_dlss.dll from GitHub to {nvngx_dest}")
-                        
-                        nvngx_cmd = [
-                            "wget",
-                            "-O", str(nvngx_dest),
-                            nvngx_url
-                        ]
-                        
-                        nvngx_result = subprocess.run(
-                            nvngx_cmd,
-                            capture_output=True,
-                            text=True,
-                            check=False  # Don't raise exception if download fails
-                        )
-                        
-                        if nvngx_result.returncode != 0:
-                            decky.logger.error(f"Failed to download nvngx_dlss.dll: {nvngx_result.stderr}")
-                        else:
-                            decky.logger.info(f"Successfully downloaded nvngx_dlss.dll as {nvngx_dest}")
-                    except Exception as e:
-                        decky.logger.error(f"Failed to download nvngx_dlss.dll: {e}")
-                        # Continue with the process even if this download fails
-
             except Exception as e:
                 decky.logger.error(f"Failed to create renamed copies: {e}")
                 # Continue with the process even if renaming fails
             
-            # Step 8: Update OptiScaler.ini to set FGType=nukems
+            # Step 9: Update OptiScaler.ini to set FGType=nukems (optional, keeping original settings for now)
             try:
                 ini_file = extract_path / "OptiScaler.ini"
                 if ini_file.exists():
-                    # Comment out the FGType modification
-                    decky.logger.info(f"FGType=nukems feature disabled, keeping original INI settings")
-                    
-                    # Original implementation:
-                    # decky.logger.info(f"Updating {ini_file to set FGType=nukems")
-                    # # Read the file content
+                    decky.logger.info(f"Preserving original OptiScaler.ini FGType settings")
+                    # Optionally set FGType to nukems - uncomment if needed:
                     # with open(ini_file, 'r') as f:
                     #     content = f.read()
-                    # # Replace FGType=auto with FGType=nukems using regex for flexibility
-                    # import re
-                    # updated_content = re.sub(r'FGType\s*=\s*auto', 'FGType=nukems', content)
-                    # # Write the updated content back to the file
+                    # updated_content = re.sub(r'FGType\s*=\s*\w+', 'FGType=nukems', content)
                     # with open(ini_file, 'w') as f:
                     #     f.write(updated_content)
-                    
-                    decky.logger.info("Preserving original OptiScaler.ini FGType settings")
                 else:
                     decky.logger.error(f"OptiScaler.ini not found at {ini_file}")
             except Exception as e:
@@ -255,89 +272,118 @@ class Plugin:
 
     async def run_uninstall_fgmod(self) -> dict:
         try:
-            result = subprocess.run(
-                ["/bin/bash", Path(decky.DECKY_PLUGIN_DIR) / "assets" / "fgmod-remover.sh"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            return {"status": "success", "output": result.stdout}
-        except subprocess.CalledProcessError as e:
-            decky.logger.error(e.output)
-            return {"status": "error", "message": str(e), "output": e.output}
+            # Remove opti directory only (since everything is now in ~/opti)
+            opti_path = Path(decky.HOME) / "opti"
+            
+            removed_dirs = []
+            
+            # Remove opti directory  
+            if opti_path.exists():
+                shutil.rmtree(opti_path)
+                removed_dirs.append("opti")
+                decky.logger.info(f"Removed directory: {opti_path}")
+            
+            # Also remove legacy fgmod directory if it exists
+            fgmod_path = Path(decky.HOME) / "fgmod"
+            if fgmod_path.exists():
+                shutil.rmtree(fgmod_path)
+                removed_dirs.append("fgmod (legacy)")
+                decky.logger.info(f"Removed legacy directory: {fgmod_path}")
+            
+            if removed_dirs:
+                message = f"Successfully removed directories: {', '.join(removed_dirs)}"
+            else:
+                message = "No mod directories found to remove"
+            
+            return {
+                "status": "success", 
+                "output": message
+            }
+            
+        except Exception as e:
+            decky.logger.error(f"Uninstall error: {str(e)}")
+            return {
+                "status": "error", 
+                "message": f"Uninstall failed: {str(e)}", 
+                "output": str(e)
+            }
 
     async def run_install_fgmod(self) -> dict:
         try:
-            assets_dir = Path(decky.DECKY_PLUGIN_DIR) / "assets"
-            prepare_script = assets_dir / "prepare.sh"
-
-            if not prepare_script.exists():
-                decky.logger.error(f"prepare.sh not found: {prepare_script}")
+            decky.logger.info("Starting OptiScaler bleeding-edge installation")
+            
+            # Download everything from the bleeding-edge release to ~/opti
+            opti_result = await self.download_optiscaler_nightly()
+            
+            if opti_result["status"] not in ["success", "partial_success"]:
                 return {
                     "status": "error",
-                    "message": f"prepare.sh not found in plugin assets."
+                    "message": f"OptiScaler bleeding-edge download failed: {opti_result.get('message', 'Unknown error')}"
                 }
-
-            # Ensure prepare.sh has execution permissions
-            prepare_script.chmod(0o755)
-
-            # Run prepare.sh directly from the plugin's assets folder
-            process = subprocess.run(
-                ["/bin/bash", str(prepare_script)],
-                cwd=str(assets_dir),  # Run in assets directory to use correct paths
-                capture_output=True,
-                text=True,
-                timeout=300
-            )
-
-            decky.logger.info(f"Script output:\n{process.stdout}")
-            decky.logger.error(f"Script errors:\n{process.stderr}")
-
-            if "All done!" not in process.stdout:
-                decky.logger.error("Installation did not complete successfully")
-                return {
-                    "status": "error",
-                    "message": process.stdout + process.stderr
-                }
-
+            
+            # Handle Flatpak compatibility if needed
+            try:
+                opti_path = Path(decky.HOME) / "opti"
+                
+                # Check if Flatpak Steam is installed
+                flatpak_check = subprocess.run(
+                    ["flatpak", "list"],
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                
+                if flatpak_check.returncode == 0 and "com.valvesoftware.Steam" in flatpak_check.stdout:
+                    decky.logger.info("Flatpak Steam detected, adding filesystem access")
+                    
+                    # Add filesystem access for opti directory
+                    subprocess.run([
+                        "flatpak", "override", "--user", 
+                        f"--filesystem={opti_path}", 
+                        "com.valvesoftware.Steam"
+                    ], check=False)
+                    
+                    decky.logger.info("Added Flatpak filesystem access - Steam restart recommended")
+                
+            except Exception as e:
+                decky.logger.warning(f"Flatpak setup had issues (this is OK): {e}")
+            
             return {
                 "status": "success",
-                "output": "You can now replace DLSS with FSR Frame Gen!"
+                "output": "Successfully installed OptiScaler bleeding-edge with all necessary components! You can now replace DLSS with FSR Frame Gen!"
             }
 
-        except subprocess.TimeoutExpired:
-            decky.logger.error("Installation script timed out")
-            return {
-                "status": "error",
-                "message": "Installation timed out"
-            }
-        except subprocess.CalledProcessError as e:
-            decky.logger.error(f"Script error: {e.stderr}")
-            return {
-                "status": "error",
-                "message": e.stderr
-            }
         except Exception as e:
-            decky.logger.error(f"Unexpected error: {str(e)}")
+            decky.logger.error(f"Unexpected error during installation: {str(e)}")
             return {
                 "status": "error",
-                "message": str(e)
+                "message": f"Installation failed: {str(e)}"
             }
 
     async def check_fgmod_path(self) -> dict:
-        path = Path(decky.HOME) / "fgmod"
+        # Now everything is in ~/opti, so we check that path instead
+        path = Path(decky.HOME) / "opti"
         required_files = [
-            "amd_fidelityfx_dx12.dll", "amd_fidelityfx_vk.dll", "d3dcompiler_47.dll", "DisableNvidiaSignatureChecks.reg",
-            "dlss-enabler.dll", "dlss-enabler-upscaler.dll", "dlssg_to_fsr3_amd_is_better-3.0.dll", "dlssg_to_fsr3_amd_is_better.dll",
-            "dlssg_to_fsr3.ini", "dxgi.dll", "dxvk.conf", "fakenvapi.ini", "fgmod", "fgmod-uninstaller.sh",
-            "libxess.dll", "nvapi64.dll", "nvngx.ini", "nvngx-wrapper.dll", "_nvngx.dll", "RestoreNvidiaSignatureChecks.reg"
+            "OptiScaler.dll",
+            "dlssg_to_fsr3_amd_is_better.dll", 
+            "fakenvapi.ini", 
+            "nvapi64.dll",
+            "amd_fidelityfx_dx12.dll",
+            "amd_fidelityfx_vk.dll", 
+            "libxess.dll"
         ]
 
         if path.exists():
+            missing_files = []
             for file_name in required_files:
                 if not path.joinpath(file_name).exists():
-                    return {"exists": False}
-            return {"exists": True}
+                    missing_files.append(file_name)
+            
+            if missing_files:
+                decky.logger.warning(f"OptiScaler directory exists but missing files: {missing_files}")
+                return {"exists": False, "missing_files": missing_files}
+            else:
+                return {"exists": True}
         else:
             return {"exists": False}
 
@@ -905,9 +951,35 @@ class Plugin:
             
             download_url = zip_asset['browser_download_url']
             
-            # Compare versions
-            from packaging import version
-            has_update = version.parse(latest_version) > version.parse(current_version)
+            # Compare versions (simple string comparison should work for most cases)
+            def version_compare(v1, v2):
+                """Simple version comparison function"""
+                # Remove 'v' prefix if present
+                v1_clean = v1.lstrip('v')
+                v2_clean = v2.lstrip('v')
+                
+                # Split into parts and compare
+                v1_parts = v1_clean.split('.')
+                v2_parts = v2_clean.split('.')
+                
+                # Pad shorter version with zeros
+                max_len = max(len(v1_parts), len(v2_parts))
+                v1_parts.extend(['0'] * (max_len - len(v1_parts)))
+                v2_parts.extend(['0'] * (max_len - len(v2_parts)))
+                
+                for i in range(max_len):
+                    # Extract numeric part for comparison
+                    v1_num = ''.join(filter(str.isdigit, v1_parts[i])) or '0'
+                    v2_num = ''.join(filter(str.isdigit, v2_parts[i])) or '0'
+                    
+                    if int(v1_num) > int(v2_num):
+                        return 1
+                    elif int(v1_num) < int(v2_num):
+                        return -1
+                
+                return 0
+            
+            has_update = version_compare(latest_version, current_version) > 0
             
             return {
                 "status": "success",

@@ -16,7 +16,6 @@ error_exit() {
 
 # === CONFIG ===
 optipath="$HOME/opti"
-fgmodpath="$HOME/fgmod"
 
 # === Resolve Game Path ===
 if [[ "$#" -lt 1 ]]; then

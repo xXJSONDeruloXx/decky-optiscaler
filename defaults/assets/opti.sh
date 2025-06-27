@@ -16,7 +16,6 @@ error_exit() {
 
 # === CONFIG ===
 optipath="$HOME/opti"
-fgmodpath="$HOME/fgmod"
 dll_name="${DLL:-dxgi.dll}"
 
 # === Resolve Game Path ===
@@ -82,17 +81,17 @@ cp "$optipath/OptiScaler.ini" "$exe_folder_path/OptiScaler.ini" || error_exit "�
 cp -f "$optipath/libxess.dll" "$exe_folder_path/" || true
 cp -f "$optipath/amd_fidelityfx_dx12.dll" "$exe_folder_path/" || true
 cp -f "$optipath/amd_fidelityfx_vk.dll" "$exe_folder_path/" || true
-cp -f "$optipath/renames/nvngx.dll" "$exe_folder_path/" || true
+cp -f "$optipath/nvngx.dll" "$exe_folder_path/" || true
 
-# === Nukem FG Mod Files ===
-cp -f "$fgmodpath/dlssg_to_fsr3_amd_is_better.dll" "$exe_folder_path/" || true
-cp -f "$fgmodpath/dlssg_to_fsr3.ini" "$exe_folder_path/" || true
-cp -f "$fgmodpath/nvapi64.dll" "$exe_folder_path/" || true
-cp -f "$fgmodpath/fakenvapi.ini" "$exe_folder_path/" || true
+# === Nukem FG Mod Files (now in opti directory) ===
+cp -f "$optipath/dlssg_to_fsr3_amd_is_better.dll" "$exe_folder_path/" || true
+cp -f "$optipath/dlssg_to_fsr3.ini" "$exe_folder_path/" || true
+cp -f "$optipath/nvapi64.dll" "$exe_folder_path/" || true
+cp -f "$optipath/fakenvapi.ini" "$exe_folder_path/" || true
 
 # === Optional Config Files ===
-cp -n "$fgmodpath/dxvk.conf" "$exe_folder_path/" || true
-# cp -n "$fgmodpath/nvngx.ini" "$exe_folder_path/" || true
+cp -n "$optipath/dxvk.conf" "$exe_folder_path/" || true
+# cp -n "$optipath/nvngx.ini" "$exe_folder_path/" || true
 
 logger -t optiscaler "✅ OptiScaler installed in: $exe_folder_path with DLL: $dll_name"
 echo "✅ OptiScaler installed in: $exe_folder_path with DLL: $dll_name"

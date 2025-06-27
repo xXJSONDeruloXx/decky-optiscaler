@@ -192,36 +192,12 @@ function FGModInstallerSection() {
     try {
       setInstalling(true);
       
-      // First, install FGMod
-      console.log("Installing FGMod...");
-      const fgmodResult = await runInstallFGMod();
+      // Install everything from the bleeding-edge release to ~/opti
+      console.log("Installing OptiScaler bleeding-edge...");
+      const result = await runInstallFGMod();
       
-      // Log but don't update UI yet, as we have more to do
-      console.log("FGMod installation result:", fgmodResult);
-      
-      // If FGMod installation succeeded, download OptiScaler as well
-      if (fgmodResult.status === "success") {
-        console.log("FGMod installed, now downloading OptiScaler...");
-        
-        // Show temporary notification that we're downloading OptiScaler
-        setInstallResult({
-          status: "success",
-          output: "FGMod installed successfully, now downloading OptiScaler..."
-        });
-        
-        // Download OptiScaler
-        const optiResult = await downloadLatestOptiScaler();
-        console.log("OptiScaler download result:", optiResult);
-        
-        // Update UI with combined result
-        setInstallResult({
-          status: "success",
-          output: `FGMod installed. OptiScaler ${optiResult.status === "success" ? "also installed" : "download had issues"}. ${optiResult.version ? `(Version: ${optiResult.version})` : ""}`
-        });
-      } else {
-        // Just show the FGMod result if it failed
-        setInstallResult(fgmodResult);
-      }
+      console.log("Installation result:", result);
+      setInstallResult(result);
     } catch (e) {
       logError('handleInstallClick: ' + String(e));
       console.error(e);
@@ -302,14 +278,14 @@ function FGModInstallerSection() {
       {pathExists === false ? (
         <PanelSectionRow>
           <ButtonItem layout="below" onClick={handleInstallClick} disabled={installing}>
-            {installing ? "Installing..." : "Install Mod Files"}
+            {installing ? "Installing..." : "Install OptiScaler Bleeding-Edge"}
           </ButtonItem>
         </PanelSectionRow>
       ) : null}
       {pathExists === true ? (
         <PanelSectionRow>
           <ButtonItem layout="below" onClick={handleUninstallClick} disabled={uninstalling}>
-            {uninstalling ? "Uninstalling..." : "Uninstall Mod Files"}
+            {uninstalling ? "Uninstalling..." : "Uninstall OptiScaler"}
           </ButtonItem>
         </PanelSectionRow>
       ) : null}      
@@ -319,7 +295,7 @@ function FGModInstallerSection() {
           onClick={handleDownload} 
           disabled={isDownloading}
         >
-          {isDownloading ? "Downloading..." : "Update OptiScaler Latest"}
+          {isDownloading ? "Updating..." : "Update OptiScaler Latest"}
         </ButtonItem>
         
         {downloadStatus && (
@@ -375,7 +351,7 @@ function FGModInstallerSection() {
       ) : null}
       <PanelSectionRow>
         <div>
-          Install the mod above, then select and patch a game below to enable DLSS in the game's menu.
+          Install OptiScaler above, then select and patch a game below to enable DLSS/FSR3 Frame Generation in the game's menu.
         </div>
       </PanelSectionRow>
     </PanelSection>
