@@ -565,8 +565,8 @@ function InstalledGamesSection() {
     if (!selectedGame) return;
 
     try {
-      await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, '~/fgmod/fgmod-uninstaller.sh %COMMAND%');
-      setResult(`DLSS mods will uninstall on next launch of ${selectedGame.name}.`);
+      await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, '~/opti/opti-uninstaller.sh %COMMAND%');
+      setResult(`OptiScaler will uninstall on next launch of ${selectedGame.name}.`);
     } catch (error) {
       logError('handleUnpatchClick: ' + String(error));
       setResult(error instanceof Error ? `Error clearing launch options: ${error.message}` : 'Error clearing launch options');

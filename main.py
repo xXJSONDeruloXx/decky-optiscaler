@@ -237,6 +237,38 @@ class Plugin:
                 decky.logger.error(f"Failed to update OptiScaler.ini: {e}")
                 # Continue with the process even if INI update fails
             
+            # Step 10: Copy launcher scripts from plugin assets
+            try:
+                assets_dir = Path(decky.DECKY_PLUGIN_DIR) / "defaults" / "assets"
+                
+                # Copy opti.sh launcher script
+                opti_script_src = assets_dir / "opti.sh"
+                opti_script_dest = extract_path / "opti.sh"
+                if opti_script_src.exists():
+                    shutil.copy2(opti_script_src, opti_script_dest)
+                    opti_script_dest.chmod(0o755)  # Make executable
+                    decky.logger.info(f"Copied opti.sh launcher script to {opti_script_dest}")
+                
+                # Copy regular uninstaller script
+                uninstaller_src = assets_dir / "opti-uninstaller.sh"
+                uninstaller_dest = extract_path / "opti-uninstaller.sh"
+                if uninstaller_src.exists():
+                    shutil.copy2(uninstaller_src, uninstaller_dest)
+                    uninstaller_dest.chmod(0o755)  # Make executable
+                    decky.logger.info(f"Copied regular uninstaller script to {uninstaller_dest}")
+                
+                # Copy nuclear uninstaller script
+                nuclear_src = assets_dir / "uninstall-nuclear.sh"
+                nuclear_dest = extract_path / "uninstall-nuclear.sh"
+                if nuclear_src.exists():
+                    shutil.copy2(nuclear_src, nuclear_dest)
+                    nuclear_dest.chmod(0o755)  # Make executable
+                    decky.logger.info(f"Copied nuclear uninstaller script to {nuclear_dest}")
+                    
+            except Exception as e:
+                decky.logger.error(f"Failed to copy launcher scripts: {e}")
+                # Continue with the process even if script copying fails
+            
             return {
                 "status": "success", 
                 "message": f"Downloaded and extracted OptiScaler {version} to ~/opti", 
@@ -357,7 +389,10 @@ class Plugin:
             "nvapi64.dll",
             "amd_fidelityfx_dx12.dll",
             "amd_fidelityfx_vk.dll", 
-            "libxess.dll"
+            "libxess.dll",
+            "opti.sh",
+            "opti-uninstaller.sh",
+            "uninstall-nuclear.sh"
         ]
 
         if path.exists():
