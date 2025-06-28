@@ -6,7 +6,7 @@ rebuild:
     rm -rf out
     mkdir -p out
     .vscode/build.sh
-    scp ~/Developer/decky-optiscaler/out/decky-optiscaler.zip deck@192.168.0.6:~/Desktop
+    scp /Users/kurt/Developer/decky-optiscaler/out/decky-optiscaler.zip bazzite@192.168.0.117:~/Desktop
 
 # build and test with ssh monitoring
 test:
@@ -14,8 +14,8 @@ test:
     rm -rf out
     mkdir -p out
     .vscode/build.sh
-    scp ~/Developer/decky-optiscaler/out/decky-optiscaler.zip deck@192.168.0.6:~
-    ssh deck@192.168.0.6 "journalctl --follow"
+    scp /Users/kurt/Developer/decky-optiscaler/out/decky-optiscaler.zip bazzite@192.168.0.117:~/Desktop
+    ssh bazzite@192.168.0.117 "journalctl --follow"
     
 # build without sending to deck
 build:

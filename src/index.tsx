@@ -511,6 +511,41 @@ function InstalledGamesSection() {
   const [games, setGames] = useState<{ appid: number; name: string }[]>([]);
   const [selectedGame, setSelectedGame] = useState<{ appid: number; name: string } | null>(null);
   const [result, setResult] = useState<string>('');
+  const [selectedDllType, setSelectedDllType] = useState<string>('dxgi.dll');
+
+  // DLL options for OptiScaler patching
+  const dllOptions = [
+    { 
+      label: 'dxgi.dll', 
+      data: 'dxgi.dll',
+      description: 'Default and most broadly compatible option'
+    },
+    { 
+      label: 'winmm.dll', 
+      data: 'winmm.dll',
+      description: 'Often works better with Unity/Unreal games when dxgi fails'
+    },
+    { 
+      label: 'dbghelp.dll', 
+      data: 'dbghelp.dll',
+      description: 'Alternative for older DX9/DX11 games'
+    },
+    { 
+      label: 'version.dll', 
+      data: 'version.dll',
+      description: 'Used by some older mod loaders and ASI-based tools'
+    },
+    { 
+      label: 'wininet.dll', 
+      data: 'wininet.dll',
+      description: 'Useful if winmm or version conflict with the game'
+    },
+    { 
+      label: 'winhttp.dll', 
+      data: 'winhttp.dll',
+      description: 'Another alternative when others inject too early or late'
+    }
+  ];
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -536,31 +571,6 @@ function InstalledGamesSection() {
     fetchGames();
   }, []);
 
-  const handlePatchClick = async () => {
-    if (!selectedGame) return;
-
-    // Show confirmation modal
-    showModal(
-      <ConfirmModal 
-        strTitle={`Patch ${selectedGame.name}?`}
-        strDescription={
-          "WARNING: Decky Framegen does not unpatch games when uninstalled. Be sure to unpatch the game or verify the integrity of your game files if you choose to uninstall the plugin or the game has issues."
-        }
-        strOKButtonText="Yeah man, I wanna do it"
-        strCancelButtonText="Cancel"
-        onOK={async () => {
-          try {
-            await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, '~/fgmod/fgmod %COMMAND%');
-            setResult(`Launch options set for ${selectedGame.name}. You can now select DLSS in the game's menu.`);
-          } catch (error) {
-            logError('handlePatchClick: ' + String(error));
-            setResult(error instanceof Error ? `Error setting launch options: ${error.message}` : 'Error setting launch options');
-          }
-        }}
-      />
-    );
-  };
-
   const handleUnpatchClick = async () => {
     if (!selectedGame) return;
 
@@ -570,6 +580,18 @@ function InstalledGamesSection() {
     } catch (error) {
       logError('handleUnpatchClick: ' + String(error));
       setResult(error instanceof Error ? `Error clearing launch options: ${error.message}` : 'Error clearing launch options');
+    }
+  };
+
+  const handleOptiScalerPatch = async () => {
+    if (!selectedGame) return;
+
+    try {
+      await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, `DLL=${selectedDllType} ~/opti/opti.sh %COMMAND%`);
+      setResult(`OptiScaler (${selectedDllType}) set for ${selectedGame.name}`);
+    } catch (error) {
+      logError('handleOptiScalerPatch: ' + String(error));
+      setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -607,14 +629,6 @@ function InstalledGamesSection() {
       
       {selectedGame ? (
         <>
-          <PanelSectionRow>
-            <ButtonItem
-              layout="below"
-              onClick={handlePatchClick}
-            >
-              Patch
-            </ButtonItem>
-          </PanelSectionRow>
           <PanelSectionRow>
             <ButtonItem
               layout="below"
@@ -672,123 +686,27 @@ function InstalledGamesSection() {
           </PanelSectionRow>
           
           <PanelSectionRow>
-            <ButtonItem
-              layout="below"
-              onClick={async () => {
-                try {
-                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=dxgi.dll ~/opti/opti.sh %COMMAND%');
-                  setResult(`OptiScaler (dxgi.dll) set for ${selectedGame.name}`);
-                } catch (error) {
-                  logError('handleOptiPatchClick: ' + String(error));
-                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                }
-              }}
-            >
-              Opti-Patch (dxgi.dll)
-            </ButtonItem>
-            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
-              Default and most broadly compatible option.
+            <DropdownItem
+              label="DLL Type"
+              rgOptions={dllOptions}
+              selectedOption={selectedDllType}
+              onChange={(option: any) => setSelectedDllType(option.data)}
+            />
+          </PanelSectionRow>
+          
+          <PanelSectionRow>
+            <div style={{ fontSize: '0.8em', marginBottom: '8px', opacity: 0.8 }}>
+              {dllOptions.find(option => option.data === selectedDllType)?.description || ''}
             </div>
           </PanelSectionRow>
           
           <PanelSectionRow>
             <ButtonItem
               layout="below"
-              onClick={async () => {
-                try {
-                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=winmm.dll ~/opti/opti.sh %COMMAND%');
-                  setResult(`OptiScaler (winmm.dll) set for ${selectedGame.name}`);
-                } catch (error) {
-                  logError('handleOptiPatchClick: ' + String(error));
-                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                }
-              }}
+              onClick={handleOptiScalerPatch}
             >
-              Opti-Patch (winmm.dll)
+              Opti-Patch ({selectedDllType})
             </ButtonItem>
-            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
-              Often works better with Unity/Unreal games when dxgi fails.
-            </div>
-          </PanelSectionRow>
-          
-          <PanelSectionRow>
-            <ButtonItem
-              layout="below"
-              onClick={async () => {
-                try {
-                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=dbghelp.dll ~/opti/opti.sh %COMMAND%');
-                  setResult(`OptiScaler (dbghelp.dll) set for ${selectedGame.name}`);
-                } catch (error) {
-                  logError('handleOptiPatchClick: ' + String(error));
-                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                }
-              }}
-            >
-              Opti-Patch (dbghelp.dll)
-            </ButtonItem>
-            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
-              Alternative for older DX9/DX11 games.
-            </div>
-          </PanelSectionRow>
-          
-          <PanelSectionRow>
-            <ButtonItem
-              layout="below"
-              onClick={async () => {
-                try {
-                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=version.dll ~/opti/opti.sh %COMMAND%');
-                  setResult(`OptiScaler (version.dll) set for ${selectedGame.name}`);
-                } catch (error) {
-                  logError('handleOptiPatchClick: ' + String(error));
-                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                }
-              }}
-            >
-              Opti-Patch (version.dll)
-            </ButtonItem>
-            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
-              Used by some older mod loaders and ASI-based tools.
-            </div>
-          </PanelSectionRow>
-          
-          <PanelSectionRow>
-            <ButtonItem
-              layout="below"
-              onClick={async () => {
-                try {
-                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=wininet.dll ~/opti/opti.sh %COMMAND%');
-                  setResult(`OptiScaler (wininet.dll) set for ${selectedGame.name}`);
-                } catch (error) {
-                  logError('handleOptiPatchClick: ' + String(error));
-                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                }
-              }}
-            >
-              Opti-Patch (wininet.dll)
-            </ButtonItem>
-            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
-              Useful if winmm or version conflict with the game.
-            </div>
-          </PanelSectionRow>
-          
-          <PanelSectionRow>
-            <ButtonItem
-              layout="below"
-              onClick={async () => {
-                try {
-                  await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, 'DLL=winhttp.dll ~/opti/opti.sh %COMMAND%');
-                  setResult(`OptiScaler (winhttp.dll) set for ${selectedGame.name}`);
-                } catch (error) {
-                  logError('handleOptiPatchClick: ' + String(error));
-                  setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                }
-              }}
-            >
-              Opti-Patch (winhttp.dll)
-            </ButtonItem>
-            <div style={{ fontSize: '0.8em', marginTop: '4px', opacity: 0.8 }}>
-              Another alternative when others inject too early or late.
-            </div>
           </PanelSectionRow>
         </>
       ) : null}
