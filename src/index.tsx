@@ -512,6 +512,7 @@ function InstalledGamesSection() {
   const [selectedGame, setSelectedGame] = useState<{ appid: number; name: string } | null>(null);
   const [result, setResult] = useState<string>('');
   const [selectedDllType, setSelectedDllType] = useState<string>('dxgi.dll');
+  const [preserveGameIni, setPreserveGameIni] = useState<boolean>(false);
 
   // DLL options for OptiScaler patching
   const dllOptions = [
@@ -587,8 +588,9 @@ function InstalledGamesSection() {
     if (!selectedGame) return;
 
     try {
-      await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, `DLL=${selectedDllType} ~/opti/opti.sh %COMMAND%`);
-      setResult(`OptiScaler (${selectedDllType}) set for ${selectedGame.name}`);
+      const preserveIniFlag = preserveGameIni ? 'PRESERVE_INI=true' : 'PRESERVE_INI=false';
+      await SteamClient.Apps.SetAppLaunchOptions(selectedGame.appid, `DLL=${selectedDllType} ${preserveIniFlag} ~/opti/opti.sh %COMMAND%`);
+      setResult(`OptiScaler (${selectedDllType}) set for ${selectedGame.name}${preserveGameIni ? ' - preserving existing game INI' : ''}`);
     } catch (error) {
       logError('handleOptiScalerPatch: ' + String(error));
       setResult(`Error setting OptiScaler: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -698,6 +700,15 @@ function InstalledGamesSection() {
             <div style={{ fontSize: '0.8em', marginBottom: '8px', opacity: 0.8 }}>
               {dllOptions.find(option => option.data === selectedDllType)?.description || ''}
             </div>
+          </PanelSectionRow>
+          
+          <PanelSectionRow>
+            <ToggleField
+              label="Preserve Game INI Settings"
+              description="When enabled, launching this patched game will not overwrite opti INI settings. Press Opti Patch after toggling to apply this setting."
+              checked={preserveGameIni}
+              onChange={(value: boolean) => setPreserveGameIni(value)}
+            />
           </PanelSectionRow>
           
           <PanelSectionRow>

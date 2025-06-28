@@ -17,6 +17,7 @@ error_exit() {
 # === CONFIG ===
 optipath="$HOME/opti"
 dll_name="${DLL:-dxgi.dll}"
+preserve_ini="${PRESERVE_INI:-false}"
 
 # === Resolve Game Path ===
 if [[ "$#" -lt 1 ]]; then
@@ -56,6 +57,7 @@ fi
 
 logger -t optiscaler "🟢 Target directory: $exe_folder_path"
 logger -t optiscaler "🧩 Using DLL name: $dll_name"
+logger -t optiscaler "📄 Preserve INI: $preserve_ini"
 
 # === Cleanup Old Injectors ===
 rm -f "$exe_folder_path"/{dxgi.dll,winmm.dll,nvngx.dll,_nvngx.dll,nvngx-wrapper.dll,dlss-enabler.dll,OptiScaler.dll}
@@ -75,7 +77,15 @@ else
   cp "$optipath/OptiScaler.dll" "$exe_folder_path/$dll_name" || error_exit "❌ Failed to copy OptiScaler.dll as $dll_name"
 fi
 
-cp "$optipath/OptiScaler.ini" "$exe_folder_path/OptiScaler.ini" || error_exit "❌ Failed to copy OptiScaler.ini"
+# === OptiScaler.ini Handling ===
+if [[ "$preserve_ini" == "true" && -f "$exe_folder_path/OptiScaler.ini" ]]; then
+  echo "📄 Preserving existing OptiScaler.ini (user settings retained)"
+  logger -t optiscaler "📄 Existing OptiScaler.ini preserved in $exe_folder_path"
+else
+  echo "📄 Installing OptiScaler.ini from plugin defaults"
+  cp "$optipath/OptiScaler.ini" "$exe_folder_path/OptiScaler.ini" || error_exit "❌ Failed to copy OptiScaler.ini"
+  logger -t optiscaler "📄 OptiScaler.ini installed to $exe_folder_path"
+fi
 
 # === Supporting Libraries ===
 cp -f "$optipath/libxess.dll" "$exe_folder_path/" || true
