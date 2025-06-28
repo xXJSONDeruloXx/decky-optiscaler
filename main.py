@@ -239,7 +239,7 @@ class Plugin:
             
             # Step 10: Copy launcher scripts from plugin assets
             try:
-                assets_dir = Path(decky.DECKY_PLUGIN_DIR) / "defaults" / "assets"
+                assets_dir = Path(decky.DECKY_PLUGIN_DIR) / "assets"
                 
                 # Copy opti.sh launcher script
                 opti_script_src = assets_dir / "opti.sh"
