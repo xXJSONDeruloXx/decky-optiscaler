@@ -1,24 +1,68 @@
-# Decky Optiscaler Plugin
+# Decky OptiScaler Plugin
 
-This plugin automates the updating, installing, and configuring of Optiscaler via game mode. The goal is to enable all capabilities of Optiscaler fully gamepad driven.
+A comprehensive Steam Deck plugin that brings advanced upscaling and frame generation to your games using the latest OptiScaler bleeding-edge builds. Enables FSR 3.1, DLSS, XeSS upscaling and frame generation on any compatible GPU - all from Game Mode with full gamepad support.
 
 <img width="681" alt="image" src="https://github.com/user-attachments/assets/99e1f9d7-ee82-465e-871d-b87297d02f02" />
 
-<img width="680" alt="image" src="https://github.com/user-attachments/assets/b0e08a8f-3581-47d5-b563-49ad67e93577" />
-
-<img width="681" alt="image" src="https://github.com/user-attachments/assets/9fbb8c1c-03f0-4e89-a59b-5c90a100d341" />
-
-<img width="676" alt="image" src="https://github.com/user-attachments/assets/0057d837-020f-4486-a76f-cebe59e8e3c1" />
-
-<img width="678" alt="image" src="https://github.com/user-attachments/assets/703ac264-2f24-4b17-983c-6eb66aadbd3a" />
-
-<img width="677" alt="image" src="https://github.com/user-attachments/assets/839dd3b4-4435-4df0-aee6-800273ca17b8" />
-
-
 ## Features
 
-- Install and uninstall Optiscaler mod and supporting DLSS Enabler, FakeNVAPI, Nukems Mod etc.
-- Add launch option either manually or via game drop down to run the installer script when game is launched
+### 🚀 **Core Functionality**
+- **One-Click Installation**: Automatically download and install the latest OptiScaler bleeding-edge builds from GitHub
+- **Smart Game Patching**: Advanced per-game DLL injection with 6 different injection methods for maximum compatibility
+- **Steam Library Integration**: Browse your entire Steam library and patch games directly from the plugin interface
+- **Intelligent File Management**: Automatic backup of original game DLLs and seamless restoration capabilities
+
+### 🎮 **Advanced Game Support**
+- **Multiple DLL Injection Methods**: Full support for `dxgi.dll`, `winmm.dll`, `dbghelp.dll`, `version.dll`, `wininet.dll`, `winhttp.dll`
+- **Game-Specific Optimizations**: Built-in launcher detection and path resolution for popular titles:
+  - Cyberpunk 2077 (REDprelauncher bypass)
+  - The Witcher 3 (launcher bypass with DX12 preference)  
+  - HITMAN 3 / World of Assassination (direct retail executable)
+  - SYNCED, 2K Games titles, and more
+- **Unreal Engine Detection**: Automatic UE4/UE5 game detection with specialized handling
+- **Compatibility Notes**: Each DLL method includes helpful descriptions for optimal game compatibility
+
+### ⚙️ **Advanced OptiScaler Configuration**
+
+#### **Frame Generation Control**
+- **FGType Management**: Easy switching between frame generation modes:
+  - `auto` - Default OptiScaler behavior
+  - `nofg` - Disable frame generation entirely
+  - `optifg` - AMD FidelityFX Frame Generation (FSR 3.1)
+  - `nukems` - Nukem9's DLSS-to-FSR3 implementation (recommended)
+
+#### **Upscaler Settings**
+- **DirectX 11**: Full range from native FSR 2.2/3.1 to XeSS with DX12 fallback
+- **DirectX 12**: XeSS, FSR 2.1/2.2/3.1, and native DLSS support
+- **Vulkan**: Complete upscaler selection with auto-detection defaults
+
+#### **OptiFG Frame Generation Settings**
+- **Core Controls**: Enable/disable, high priority mode, debug view
+- **Performance Tuning**: Async processing, HUD fix with multiple variants
+- **Advanced Options**: HUD limit configuration, extended HUD checks, immediate capture mode
+
+#### **Quality & Performance Controls**
+- **Custom Quality Ratios**: Override upscaling ratios for all quality levels (DLAA, Ultra Quality, Quality, Balanced, Performance, Ultra Performance)
+- **Upscale Ratio Override**: Fine-tune upscaling behavior with custom ratio settings
+- **Frame Rate Limiting**: Built-in FPS limiter with configurable target rates
+
+#### **In-Game Menu Configuration**
+- **Overlay Controls**: Enable/disable ImGui overlay menu with customizable hotkeys
+- **Menu Behavior**: Configure overlay appearance, positioning, and interaction settings
+
+### 🛡️ **Safety & Recovery Features**
+- **INI Preservation Toggle**: Optionally preserve user-modified OptiScaler.ini files between patches and updates
+- **Nuclear Unpatch**: Emergency removal option that forcibly strips all mod files (requires Steam game verification)
+- **Backup Management**: Automatic backup of original game DLLs with `.b` extension for safe restoration
+- **Launch Option Cleanup**: Clean removal of all Steam launch options when unpatching games
+
+### 🔧 **Technical Highlights**
+- **Bleeding-Edge Builds**: Always downloads the latest OptiScaler builds from the official bleeding-edge repository
+- **Pre-Built DLL Variants**: All injection DLLs are pre-generated and stored in a `renames` directory for instant deployment
+- **Legacy Compatibility**: Seamless migration support for older FGMod installations
+- **Plugin Auto-Update**: Built-in update checker with GitHub integration for plugin updates
+- **Comprehensive Logging**: Detailed logging to `/tmp/opti-install.log` and system logs for troubleshooting
+- **Wine Integration**: Proper WINEDLLOVERRIDES configuration for Steam Deck compatibility
 
 ## Credits
 
