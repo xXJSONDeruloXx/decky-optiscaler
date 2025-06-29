@@ -207,27 +207,29 @@ export default function FGModInstallerSection() {
             {uninstalling ? "Uninstalling..." : "Uninstall OptiScaler"}
           </ButtonItem>
         </PanelSectionRow>
-      ) : null}      
-      <PanelSectionRow>
-        <ButtonItem 
-          layout="below" 
-          onClick={handleDownload} 
-          disabled={isDownloading}
-        >
-          {isDownloading ? "Updating..." : "Update OptiScaler Latest"}
-        </ButtonItem>
-        
-        {downloadStatus && (
-          <div style={{ 
-            marginTop: '8px',
-            padding: '10px',
-            backgroundColor: downloadStatus.success ? 'rgba(0, 128, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
-            borderRadius: '4px'
-          }}>
-            <strong>{downloadStatus.success ? 'Success:' : 'Error:'}</strong> {downloadStatus.message}
-          </div>
-        )}
-      </PanelSectionRow>
+      ) : null}
+      {pathExists === true ? (      
+        <PanelSectionRow>
+          <ButtonItem 
+            layout="below" 
+            onClick={handleDownload} 
+            disabled={isDownloading}
+          >
+            {isDownloading ? "Updating..." : "Update OptiScaler"}
+          </ButtonItem>
+          
+          {downloadStatus && (
+            <div style={{ 
+              marginTop: '8px',
+              padding: '10px',
+              backgroundColor: downloadStatus.success ? 'rgba(0, 128, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
+              borderRadius: '4px'
+            }}>
+              <strong>{downloadStatus.success ? 'Success:' : 'Error:'}</strong> {downloadStatus.message}
+            </div>
+          )}
+        </PanelSectionRow>
+      ) : null}
       {installResult ? (
         <PanelSectionRow>
           <div>

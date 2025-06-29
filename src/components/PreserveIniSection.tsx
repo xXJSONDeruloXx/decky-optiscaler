@@ -35,7 +35,7 @@ export default function PreserveIniSection({ preserveGameIni, onPreserveIniChang
           <div>
             {preserveGameIni 
               ? "Your custom OptiScaler settings in opti.ini will remain intact when launching patched games."
-              : "OptiScaler will use default settings and may overwrite existing opti.ini configurations."
+              : "OptiScaler will use the settings you toggle in the section below, and settings and will overwrite existing ini configurations for a patched game."
             }
           </div>
         </div>
