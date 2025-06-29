@@ -17,7 +17,7 @@ error_exit() {
 # === CONFIG ===
 optipath="$HOME/opti"
 dll_name="${DLL:-dxgi.dll}"
-preserve_ini="${PRESERVE_INI:-false}"
+preserve_ini="${PRESERVE_INI:-true}"
 
 # === Resolve Game Path ===
 if [[ "$#" -lt 1 ]]; then
