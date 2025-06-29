@@ -175,23 +175,37 @@ export default function FGModInstallerSection() {
 
   return (
     <PanelSection>
-      {pathExists !== null ? (
-        <PanelSectionRow>
-          <div style={{ color: pathExists ? "green" : "red" }}>
-            {pathExists ? "Mod Is Installed" : "Mod Not Installed"}
-          </div>
-        </PanelSectionRow>
-      ) : null}
-      
-      {/* Add OptiScaler status indicator */}
-      {optiScalerExists !== null ? (
-        <PanelSectionRow>
-          <div style={{ color: optiScalerExists ? "green" : "red" }}>
-            {optiScalerExists 
-              ? `Current OptiScaler Version: ${optiScalerVersion}` 
-              : "OptiScaler Not Installed"}
-          </div>
-        </PanelSectionRow>
+      {/* Show status based on installation state */}
+      {pathExists !== null && optiScalerExists !== null ? (
+        <>
+          {/* When not installed, show single consolidated message */}
+          {!pathExists && !optiScalerExists ? (
+            <PanelSectionRow>
+              <div style={{ color: "red" }}>
+                OptiScaler Mod Not Installed
+              </div>
+            </PanelSectionRow>
+          ) : (
+            /* When installed, show both status messages */
+            <>
+              {pathExists ? (
+                <PanelSectionRow>
+                  <div style={{ color: "green" }}>
+                    Mod Is Installed
+                  </div>
+                </PanelSectionRow>
+              ) : null}
+              
+              {optiScalerExists ? (
+                <PanelSectionRow>
+                  <div style={{ color: "green" }}>
+                    Current OptiScaler Version: {optiScalerVersion}
+                  </div>
+                </PanelSectionRow>
+              ) : null}
+            </>
+          )}
+        </>
       ) : null}
       
       {pathExists === false ? (
