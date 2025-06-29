@@ -15,7 +15,7 @@ export default function PreserveIniSection({ preserveGameIni, onPreserveIniChang
       <PanelSectionRow>
         <ToggleField
           label="Preserve Game INI Settings"
-          description="When enabled, patched games will not overwrite existing OptiScaler INI settings. This preserves your custom configurations when launching games. Toggle this setting before patching games to apply the preference."
+          description=""
           checked={preserveGameIni}
           onChange={onPreserveIniChange}
         />

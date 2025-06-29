@@ -61,9 +61,9 @@ export default function NonSteamGamesSection() {
                         📝 INSTRUCTIONS:
                       </div>
                       <div style={{ paddingLeft: '10px' }}>
-                        1. Copy one of the commands above<br/>
+                        1. Choose one of the commands above<br/>
                         2. In your game launcher (Heroic, Lutris, etc.), find the launch options or prefix commands<br/>
-                        3. Paste the command as a wrapper/prefix before the game executable<br/>
+                        3. Add the command as a wrapper/prefix before the game executable<br/>
                         4. Launch the game - OptiScaler will inject automatically
                       </div>
                     </div>

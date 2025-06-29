@@ -197,7 +197,7 @@ export default function FGModInstallerSection() {
       {pathExists === false ? (
         <PanelSectionRow>
           <ButtonItem layout="below" onClick={handleInstallClick} disabled={installing}>
-            {installing ? "Installing..." : "Install OptiScaler Bleeding-Edge"}
+            {installing ? "Installing..." : "Install OptiScaler"}
           </ButtonItem>
         </PanelSectionRow>
       ) : null}
@@ -270,7 +270,7 @@ export default function FGModInstallerSection() {
       ) : null}
       <PanelSectionRow>
         <div>
-          Install OptiScaler above, then select and patch a game below to enable DLSS/FSR3 Frame Generation in the game's menu.
+          Install the mod, then select a game and apply a patch.
         </div>
       </PanelSectionRow>
     </PanelSection>

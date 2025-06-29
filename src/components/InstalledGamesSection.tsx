@@ -123,12 +123,6 @@ export default function InstalledGamesSection({ preserveGameIni, setPreserveGame
 
   return (
     <PanelSection title="Select a game to patch:">
-      {/* Preserve INI Settings Section - Always visible */}
-      <PreserveIniSection 
-        preserveGameIni={preserveGameIni}
-        onPreserveIniChange={setPreserveGameIni}
-      />
-      
       <PanelSectionRow>
         <DropdownItem
           rgOptions={games.map(game => ({
@@ -145,6 +139,12 @@ export default function InstalledGamesSection({ preserveGameIni, setPreserveGame
           menuLabel="Installed Games"
         />
       </PanelSectionRow>
+      
+      {/* Preserve INI Settings Section - Always visible */}
+      <PreserveIniSection 
+        preserveGameIni={preserveGameIni}
+        onPreserveIniChange={setPreserveGameIni}
+      />
 
       {result ? (
         <PanelSectionRow>
