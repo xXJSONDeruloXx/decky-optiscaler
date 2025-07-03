@@ -58,6 +58,7 @@ class Plugin:
             asset_dlssg = next((a for a in assets if a['name'] == 'dlssg_to_fsr3_amd_is_better.dll'), None)
             asset_fakenvapi_ini = next((a for a in assets if a['name'] == 'fakenvapi.ini'), None)
             asset_nvapi64 = next((a for a in assets if a['name'] == 'nvapi64.dll'), None)
+            asset_amdxcffx64 = next((a for a in assets if a['name'] == 'amdxcffx64.dll'), None)
             
             # Clean up the temporary file
             release_info_file.unlink(missing_ok=True)
@@ -130,7 +131,8 @@ class Plugin:
             additional_files = [
                 (asset_dlssg, 'dlssg_to_fsr3_amd_is_better.dll'),
                 (asset_fakenvapi_ini, 'fakenvapi.ini'),
-                (asset_nvapi64, 'nvapi64.dll')
+                (asset_nvapi64, 'nvapi64.dll'),
+                (asset_amdxcffx64, 'amdxcffx64.dll')
             ]
             
             for asset, filename in additional_files:
@@ -387,6 +389,7 @@ class Plugin:
             "dlssg_to_fsr3_amd_is_better.dll", 
             "fakenvapi.ini", 
             "nvapi64.dll",
+            "amdxcffx64.dll",
             "amd_fidelityfx_dx12.dll",
             "amd_fidelityfx_vk.dll", 
             "libxess.dll",
