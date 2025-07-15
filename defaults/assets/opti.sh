@@ -122,6 +122,15 @@ if [[ $# -gt 1 ]]; then
   export PROTON_FSR4_UPGRADE=1 
   export DXIL_SPIRV_CONFIG=wmma_rdna3_workaround
   
+  # Check for MESA_GIT=1 environment variable and set mesa-git environment variables
+  mesa_git_path="$HOME/mesa-git"
+  if [[ "${MESA_GIT:-0}" == "1" ]] && [[ -d "$mesa_git_path" ]]; then
+    echo "🟢 MESA_GIT=1 detected in launch options, enabling mesa-git environment"
+    export LD_LIBRARY_PATH="$mesa_git_path/lib64:$LD_LIBRARY_PATH"
+    export LIBGL_DRIVERS_PATH="$mesa_git_path/lib64/dri"
+    export VK_ICD_FILENAMES="$mesa_git_path/share/vulkan/icd.d/radeon_icd.x86_64.json"
+    logger -t optiscaler "🔧 mesa-git environment enabled"
+  fi
 
   "$@"
 else

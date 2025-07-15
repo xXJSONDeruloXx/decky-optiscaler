@@ -1066,3 +1066,232 @@ class Plugin:
             error_msg = str(e)
             decky.logger.error(f"Download failed: {error_msg}")
             return {"status": "error", "message": f"Download failed: {error_msg}"}
+
+    async def download_mesa_git(self) -> dict:
+        """Download the latest mesa-git release from GitHub using wget and extract it to ~/mesa-git."""
+        try:
+            # Set up constants for clarity
+            owner = 'xXJSONDeruloXx'
+            repo = 'mesa-maker'
+            download_path = Path(decky.HOME) / "Downloads"
+            download_path.mkdir(exist_ok=True)
+            extract_path = Path(decky.HOME) / "mesa-git"
+            extract_path.mkdir(exist_ok=True)
+            
+            # Log the start of the download
+            decky.logger.info("Starting mesa-git release download")
+            
+            # Step 1: Get release info using wget - use /releases/latest to get the latest release
+            release_info_file = download_path / "mesa_git_release_info.json"
+            release_url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+            
+            wget_api_cmd = [
+                "wget",
+                "-O", str(release_info_file),
+                release_url
+            ]
+            
+            decky.logger.info(f"Fetching release info from {release_url}")
+            subprocess.run(
+                wget_api_cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            # Step 2: Parse the JSON and find the mesa-git.zip asset
+            with open(release_info_file, 'r') as f:
+                release_data = json.load(f)
+            
+            assets = release_data.get('assets', [])
+            
+            # Find the mesa-git.zip asset
+            asset_zip = next((a for a in assets if a['name'] == 'mesa-git.zip'), None)
+            
+            # Clean up the temporary file
+            release_info_file.unlink(missing_ok=True)
+            
+            if not asset_zip:
+                return {"status": "error", "message": "No mesa-git.zip file found in release"}
+            
+            # Extract version information from release tag
+            version = release_data.get('tag_name', 'unknown')
+            decky.logger.info(f"Detected version: {version}")
+            
+            # Step 3: Download the zip file
+            asset_url = asset_zip['browser_download_url']
+            asset_name = asset_zip['name']
+            output_file = download_path / asset_name
+            
+            decky.logger.info(f"Downloading {asset_name} to {output_file}")
+            
+            wget_cmd = [
+                "wget",
+                "-O", str(output_file),
+                asset_url
+            ]
+            
+            result = subprocess.run(
+                wget_cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            decky.logger.info(f"Download complete: {output_file}")
+            
+            # Step 4: Extract the zip file directly to ~/mesa-git
+            decky.logger.info(f"Extracting {output_file} to {extract_path}")
+            
+            # First remove existing mesa-git directory if it exists
+            if extract_path.exists():
+                shutil.rmtree(extract_path)
+                extract_path.mkdir(exist_ok=True)
+            
+            extract_cmd = [
+                "unzip",
+                "-o",  # Overwrite files
+                str(output_file),
+                "-d", str(extract_path)
+            ]
+            
+            extract_result = subprocess.run(
+                extract_cmd,
+                capture_output=True,
+                text=True,
+                check=False  # Don't raise exception if extraction fails
+            )
+            
+            if extract_result.returncode != 0:
+                decky.logger.error(f"Extraction failed: {extract_result.stderr}")
+                return {
+                    "status": "partial_success", 
+                    "message": f"Downloaded {asset_name} to ~/Downloads but extraction failed", 
+                    "file_path": str(output_file),
+                    "extract_error": extract_result.stderr
+                }
+            
+            decky.logger.info(f"Extraction complete to {extract_path}")
+            
+            # Step 5: Create version.txt file in the extract path
+            version_file = extract_path / "version.txt"
+            try:
+                with open(version_file, 'w') as f:
+                    f.write(version)
+                decky.logger.info(f"Created version file at {version_file}")
+            except Exception as e:
+                decky.logger.error(f"Failed to create version file: {e}")
+                # Continue with the process even if version file creation fails
+            
+            # Step 6: Remove the zip file from Downloads
+            try:
+                output_file.unlink()
+                decky.logger.info(f"Removed downloaded archive: {output_file}")
+            except Exception as e:
+                decky.logger.error(f"Failed to remove downloaded archive: {e}")
+                return {
+                    "status": "partial_success",
+                    "message": f"Downloaded and extracted to ~/mesa-git but failed to remove the zip file",
+                    "extract_path": str(extract_path)
+                }
+            
+            return {
+                "status": "success", 
+                "message": f"Downloaded and extracted mesa-git {version} to ~/mesa-git", 
+                "extract_path": str(extract_path),
+                "version": version
+            }
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"wget failed: {e.stderr}"
+            decky.logger.error(error_msg)
+            return {"status": "error", "message": error_msg}
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse GitHub API response: {str(e)}"
+            decky.logger.error(error_msg)
+            return {"status": "error", "message": error_msg}
+        except Exception as e:
+            error_msg = str(e)
+            decky.logger.error(f"Download failed: {error_msg}")
+            return {"status": "error", "message": f"Download failed: {error_msg}"}
+
+    async def check_mesa_git_path(self) -> dict:
+        """Check if mesa-git is installed properly in ~/mesa-git and get its version."""
+        try:
+            mesa_git_path = Path(decky.HOME) / "mesa-git"
+            version_file = mesa_git_path / "version.txt"
+            
+            # Check if directory exists
+            if not mesa_git_path.exists() or not mesa_git_path.is_dir():
+                return {"exists": False, "version": ""}
+            
+            # Check for lib64 directory which should contain the mesa libraries
+            lib64_path = mesa_git_path / "lib64"
+            if not lib64_path.exists():
+                return {"exists": False, "version": ""}
+            
+            # Check for and read version.txt
+            version = ""
+            if version_file.exists():
+                try:
+                    with open(version_file, 'r') as f:
+                        version = f.read().strip()
+                except Exception as e:
+                    decky.logger.error(f"Failed to read version file: {e}")
+            
+            return {"exists": True, "version": version}
+        except Exception as e:
+            decky.logger.error(f"Error checking mesa-git path: {e}")
+            return {"exists": False, "version": ""}
+
+    async def run_uninstall_mesa_git(self) -> dict:
+        """Remove mesa-git directory."""
+        try:
+            # Remove mesa-git directory
+            mesa_git_path = Path(decky.HOME) / "mesa-git"
+            
+            if mesa_git_path.exists():
+                shutil.rmtree(mesa_git_path)
+                decky.logger.info(f"Removed directory: {mesa_git_path}")
+                return {
+                    "status": "success", 
+                    "message": "Successfully removed mesa-git directory"
+                }
+            else:
+                return {
+                    "status": "success",
+                    "message": "mesa-git directory not found (already removed)"
+                }
+            
+        except Exception as e:
+            decky.logger.error(f"Uninstall error: {str(e)}")
+            return {
+                "status": "error", 
+                "message": f"Uninstall failed: {str(e)}"
+            }
+
+    async def run_install_mesa_git(self) -> dict:
+        """Install mesa-git by downloading and extracting it."""
+        try:
+            decky.logger.info("Starting mesa-git installation")
+            
+            # Download mesa-git
+            mesa_result = await self.download_mesa_git()
+            
+            if mesa_result["status"] not in ["success", "partial_success"]:
+                return {
+                    "status": "error",
+                    "message": f"mesa-git download failed: {mesa_result.get('message', 'Unknown error')}"
+                }
+            
+            return {
+                "status": "success",
+                "message": "Successfully installed mesa-git! You can now use it with launch option mesa-git=1"
+            }
+
+        except Exception as e:
+            decky.logger.error(f"Unexpected error during mesa-git installation: {str(e)}")
+            return {
+                "status": "error",
+                "message": f"Installation failed: {str(e)}"
+            }

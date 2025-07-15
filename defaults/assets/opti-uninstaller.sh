@@ -101,6 +101,16 @@ if [[ $# -gt 1 ]]; then
   echo "Launching the game..."
   export SteamDeck=0
   export WINEDLLOVERRIDES="${WINEDLLOVERRIDES},dxgi=n,b"
+  
+  # Check for MESA_GIT=1 environment variable and set mesa-git environment variables
+  mesa_git_path="$HOME/mesa-git"
+  if [[ "${MESA_GIT:-0}" == "1" ]] && [[ -d "$mesa_git_path" ]]; then
+    echo "🟢 MESA_GIT=1 detected in launch options, enabling mesa-git environment"
+    export LD_LIBRARY_PATH="$mesa_git_path/lib64:$LD_LIBRARY_PATH"
+    export LIBGL_DRIVERS_PATH="$mesa_git_path/lib64/dri"
+    export VK_ICD_FILENAMES="$mesa_git_path/share/vulkan/icd.d/radeon_icd.x86_64.json"
+  fi
+  
   exec "$@"
 else
   echo "Uninstallation complete. No game specified to run."

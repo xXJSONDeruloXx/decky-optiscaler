@@ -4,6 +4,7 @@ import { useState } from "react";
 
 // Import component sections
 import FGModInstallerSection from "./components/FGModInstallerSection";
+import MesaGitInstallerSection from "./components/MesaGitInstallerSection";
 import InstalledGamesSection from "./components/InstalledGamesSection";
 import NonSteamGamesSection from "./components/NonSteamGamesSection";
 import OptiScalerFGTypeSection from "./components/OptiScalerFGTypeSection";
@@ -16,6 +17,7 @@ function PluginContent() {
   return (
     <>
       <FGModInstallerSection />
+      <MesaGitInstallerSection />
       <InstalledGamesSection 
         preserveGameIni={preserveGameIni}
         setPreserveGameIni={setPreserveGameIni}
